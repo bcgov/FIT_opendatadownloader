@@ -1,0 +1,4 @@
+click
+geopandas
+jsonschema
+python-slugify

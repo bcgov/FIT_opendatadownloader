@@ -1,0 +1,35 @@
+[
+    {
+        "admin_area_abbreviation": "Coquitlam",
+        "admin_area_group_name_abbreviation": "MVRD",
+        "metadata_url": null,
+        "source": "https://coquitlam-spatial.s3.us-west-2.amazonaws.com/PRC/GDB/Coquitlam_Parks_GDB.zip",
+        "layer": "parks",
+        "query": null,
+        "fields": [
+            "PARKNAME",
+            "ADDRESS",
+            "PARKTYPE",
+            "OWNERSHIP",
+            "AREA_ACRES",
+            "PARK_LEVEL"
+        ],
+        "primary_key": ["PARKNAME", "AREA_ACRES"]
+    },
+    {
+        "admin_area_abbreviation": "Surrey",
+        "admin_area_group_name_abbreviation": "MVRD",
+        "metadata_url": null,
+        "source": "https://cosmos.surrey.ca/geo_ref/Images/OpenDataArchives/parks_GDB.zip",
+        "layer": "parks",
+        "query": null,
+        "fields": [
+            "FACILITYID",
+            "DESCRIPTION",
+            "LOCATION",
+            "PARK_NAME",
+            "STATUS"
+        ],
+        "primary_key": ["FACILITYID"]
+    }
+]
