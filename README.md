@@ -2,7 +2,7 @@
 
 [![Lifecycle:Experimental](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)
 
-Foundational Information and Technology (FIT) section tool to monitor open data and report when changes are detected.
+GeoBC Foundational Information and Technology (FIT) Section tool for monitoring open data and reporting on any detected changes.
 
 ## Method
 
