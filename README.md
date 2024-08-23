@@ -1,19 +1,27 @@
-# downloader
+# Foudational Information and Technology (FIT) - Change Detecor 
 
-Download spatial data from the internet, save to file.
+[![Lifecycle:Experimental](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)
+
+Monitor open data, report as changes are detected.
+
+## Method
+
+1. Based on sources and schedule in provided config file, download spatial data from the internet to BC object storage
+2. Compare downloaded data to previous version
+3. If changes are detected to schema or data, generate a diff and report to data administrators responsible for ingesting data to Provincial databases
 
 ## Usage
 
-1. Validate:
+1. Validate a sources configuration file:
 	
-		python download.py sources.json --dry-run -v
+		python download.py sources_example.json --dry-run -v
 
-2. Download:
+2. Download data defined in configuration file:
 
-		python download.py sources.json -v
+		python download.py sources_example.json -v
 
 
-## sources.json
+## Configuration
 
 Sources/layers to be downloaded are defined as json. See `sources_example.json` for an example and `source.schema.json` for the full schema definition.
 
