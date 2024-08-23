@@ -33,5 +33,5 @@ Sources/layers to be downloaded are defined as json. See `sources_example.json` 
 | source                             | url or file path to file based source, format readable by GDAL/OGR |
 | layer                              | Name of layer to use within source when source_type=FILE, default is first layer in file |
 | query                              | Query to subset data in source/layer (OGR SQL) |
-| fields                             | List of fields to retain in the download |
-| primary_key                        | List of source field(s) used as primary key |
+| fields                             | List of source field(s) to retain in the download |
+| primary_key                        | List of source field(s) used as primary key (must be a subset of `fields`)|
