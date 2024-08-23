@@ -217,7 +217,7 @@
                 "type": "string"
             },
             "layer": {
-                "description": "Name of layer to use within source when source_type=FILE, default is first layer in file",
+                "description": "Name of layer to use within source, default is first layer in file",
                 "type": "string"
             },
             "query": {
