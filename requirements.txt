@@ -1,4 +1,5 @@
+boto3
 click
-geopandas
+geopandas==0.14.4
 jsonschema
 python-slugify

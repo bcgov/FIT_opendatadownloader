@@ -1,7 +1,6 @@
 import json
 import logging
 import os
-from pathlib import Path
 import re
 import sys
 import zipfile
@@ -220,7 +219,7 @@ def download(
 
             # upload
             s3_key = "/".join([out_prefix, source[""], source[""], out_file + ".zip"])
-            upload_file_to_s3(out_file+".zip", os.environ.get("OBJECTSTORE_BUCKET"), s3_key)
+            upload_file_to_s3(out_file+".zip", os.environ.get("BUCKET"), s3_key)
 
             LOG.info(f"{source['alias']} written to {s3_key}")
 

@@ -1,6 +1,6 @@
 import pytest
 from jsonschema.exceptions import ValidationError
-from download import download_source, parse_sources
+from fit_changedetector.download import download_source, parse_sources
 
 
 @pytest.fixture
