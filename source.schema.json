@@ -1,7 +1,7 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://raw.githubusercontent.com/bcgov/change-detector/main/sources.schema.json",
-    "title": "Regional park data sources",
+    "$id": "https://raw.githubusercontent.com/bcgov/fit_changedetector/main/source.schema.json",
+    "title": "Data source schema",
     "description": "List of data sources to download and standardize",
     "type": "array",
     "items": {
