@@ -1,4 +1,4 @@
-name: Download - daily
+name: Download - quarterly
 on:
   schedule:
     - cron: '0 18 1 */3 *'
