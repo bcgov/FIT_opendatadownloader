@@ -117,7 +117,8 @@ def save_source(df, source, out_path, out_file, out_layer):
                 out_file + ".zip",
             ]
         )
-        upload_file_to_s3(out_file + ".zip", os.environ.get("BUCKET"), s3_key)
+        s3_client = boto3.client("s3")
+        s3_client.upload_file(out_file + ".zip", os.environ.get("BUCKET"), s3_key)
         LOG.info(f"{s3_key} saved to S3")
 
     # alternatively, move to local path
@@ -165,29 +166,3 @@ def is_s3_path(path):
     # Define a regular expression to match S3 paths
     s3_pattern = re.compile(r"^s3://")
     return bool(s3_pattern.match(path))
-
-
-def upload_file_to_s3(file_path, bucket_name, s3_key):
-    """
-    Upload a file to an S3 bucket.
-
-    :param file_path: Local path to the file to upload.
-    :param bucket_name: Name of the S3 bucket.
-    :param s3_key: Key (path) for the file in the S3 bucket.
-    :return: None
-    """
-    s3_client = boto3.client("s3")
-
-    try:
-        s3_client.upload_file(file_path, bucket_name, s3_key)
-        LOG.info(f"File {file_path} uploaded to {bucket_name}/{s3_key}")
-    except FileNotFoundError:
-        LOG.error(f"The file {file_path} was not found.")
-    except NoCredentialsError:
-        LOG.error("Credentials not available.")
-    except PartialCredentialsError:
-        LOG.error("Incomplete credentials provided.")
-    except ClientError as e:
-        LOG.error(f"Client error: {e}")
-    except Exception as e:
-        LOG.error(f"An error occurred: {e}")
