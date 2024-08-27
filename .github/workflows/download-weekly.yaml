@@ -27,7 +27,7 @@ jobs:
           python -m pip install .
       - name: Download park sources to S3
         run: |
-          changedetector download config/parks.json -v --out_path s3://$BUCKET/Change_Detection/ -s W
+          changedetector download config/parks.json -v --out_path s3://$BUCKET/Change_Detection -s W
       - name: Download road sources to S3
         run: |
-          changedetector download config/roads.json -v --out_path s3://$BUCKET/Change_Detection/ -s W
+          changedetector download config/roads.json -v --out_path s3://$BUCKET/Change_Detection -s W
