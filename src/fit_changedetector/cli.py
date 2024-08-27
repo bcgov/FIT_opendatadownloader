@@ -99,7 +99,8 @@ def download(
         if len(sources) == 0:
             LOG.warning(f"No source with schedule={schedule} found in {sources_file}")
 
-    # default to writing to file/layer with same name as sources config, with YYYY-MM-DD suffix
+    # default to writing to file/layer with same name as sources config,
+    # but adding YYYY-MM-DD suffix to gdb name
     if not out_file:
         out_file = (
             Path(sources_file).stem
