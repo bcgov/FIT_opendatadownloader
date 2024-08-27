@@ -1,7 +1,9 @@
+from datetime import datetime
 import logging
 import json
 from pathlib import Path
 import sys
+
 
 import fit_changedetector as fcd
 import click
@@ -97,9 +99,14 @@ def download(
         if len(sources) == 0:
             LOG.warning(f"No source with schedule={schedule} found in {sources_file}")
 
-    # default to writing to file/layer with same name as sources config
+    # default to writing to file/layer with same name as sources config, with YYYY-MM-DD suffix
     if not out_file:
-        out_file = Path(sources_file).with_suffix(".gdb").name
+        out_file = (
+            Path(sources_file).stem
+            + "_"
+            + datetime.today().strftime("%Y-%m-%d")
+            + ".gdb"
+        )
     if not out_layer:
         out_layer = Path(sources_file).stem
 
