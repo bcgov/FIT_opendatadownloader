@@ -10,15 +10,21 @@ GeoBC Foundational Information and Technology (FIT) Section tool for monitoring 
 2. Compare downloaded data to previous version
 3. If changes are detected to schema or data, generate a diff and report to data administrators responsible for ingesting data to Provincial databases
 
+
+## Installation
+
+	pip install fit_changdetector
+
+
 ## Usage
 
 1. Validate a sources configuration file:
 	
-		python download.py sources_example.json --dry-run -v
+		changedetector download sources_example.json --dry-run -v
 
-2. Download data defined in configuration file:
+2. Download data defined in configuration file to local filesystem at /path/to/Change_Detection/<rd>/<muni>/parks.gdb:
 
-		python download.py sources_example.json -v
+		changedetector download sources_example.json -v -p /path/to/Change_Detection -o parks.gdb -nln parks
 
 
 ## Configuration
@@ -39,15 +45,30 @@ Sources/layers to be downloaded are defined as json. See `sources_example.json` 
 
 ## Local development and testing
 
-Scripts must be capable of running on BCGov GTS infrastructure, using the available Python environment (3.9.18).
-For local development and testing, a Dockerfile is provided to create a similar environment (equivalent versions of required dependencies).
+### virtual environment
+
+Use whatever gdal is available on your system:
+
+	$ git clone git@github.com:bcgov/FIT_changedetector.git
+	$ cd FIT_changedetector
+	$ python -m venv .venv
+	$ source .venv/bin/activate
+	$ pip install -e .[test]
+	(.venv) $ py.test
+
+### Dockerized gdal
+
+Scripts must be capable of running on BCGov GTS infrastructure, using gdal 3.7.0.
+A Dockerfile is provided to create a similar environment.
 
 To build:
 
+	$ git clone git@github.com:bcgov/FIT_changedetector.git
+	$ cd FIT_changedetector
 	$ docker build -t fit_changedetector .
 
 Drop in to a bash session:
 
-	$ docker run --rm -it -v ./:/home/fit_changedetector fit_changedetector  bash	
+	$ docker run --rm -it -v ./:/home/fit_changedetector fit_changedetector  bash
 
 Note that Python 3.9 is not available via the [gdal ubuntu docker images](https://github.com/OSGeo/gdal/tree/master/docker#small-ghcrioosgeogdalubuntu-small-latest), testing against 3.10 should be fine for purposes of this tool.
