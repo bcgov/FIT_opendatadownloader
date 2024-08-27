@@ -37,3 +37,6 @@ jobs:
       - name: Validate park sources .json
         run: |
           changedetector download config/parks.json --dry_run -v
+      - name: Validate road sources .json
+        run: |
+          changedetector download config/roads.json --dry_run -v

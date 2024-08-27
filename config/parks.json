@@ -15,7 +15,7 @@
             "PARK_LEVEL"
         ],
         "primary_key": ["PARKNAME", "AREA_ACRES"],
-        "schedule": "M"
+        "schedule": "Q"
     },
     {
         "admin_area_abbreviation": "Surrey",
@@ -32,6 +32,6 @@
             "STATUS"
         ],
         "primary_key": ["FACILITYID"],
-        "schedule": "M"
+        "schedule": "Q"
     }
 ]
