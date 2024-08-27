@@ -1,0 +1,33 @@
+name: Download - annually
+on:
+  schedule:
+    - cron: '0 18 1 9 *'
+  workflow_dispatch:
+env:
+  AWS_ENDPOINT_URL: "https://nrs.objectstore.gov.bc.ca"
+  AWS_S3_ENDPOINT: "nrs.objectstore.gov.bc.ca"
+  AWS_VIRTUAL_HOSTING: "FALSE"
+  AWS_EC2_METADATA_DISABLED: "true"
+  CPL_VSISTDIN_BUFFER_LIMIT: -1
+  BUCKET: ${{ secrets.BUCKET }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    name: download
+    container: ghcr.io/bcgov/fit_changedetector:main
+    environment: production
+    env:
+        DEBIAN_FRONTEND: noninteractive
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install tool
+        run: |
+          python -m pip install .
+      - name: Download park sources to S3
+        run: |
+          changedetector download config/parks.json -v --out_path s3://$BUCKET/Change_Detection/ -s A
+      - name: Download road sources to S3
+        run: |
+          changedetector download config/roads.json -v --out_path s3://$BUCKET/Change_Detection/ -s A
