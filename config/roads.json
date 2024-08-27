@@ -25,7 +25,7 @@
         "admin_area_abbreviation": "Langley - City",
         "admin_area_group_name_abbreviation": "MVRD",
         "metadata_url": null,
-        "source": "https://governmentofbc.maps.arcgis.com/sharing/rest/content/items/4bba119c2e9042d683cc9378fb1e836e/data",
+        "source": "/vsizip/{/vsicurl/https://governmentofbc.maps.arcgis.com/sharing/rest/content/items/4bba119c2e9042d683cc9378fb1e836e/data}/CoL_TransportationNetwork Jan 3 2024.gdb",
         "layer": "TRN_ROADS",
         "query": null,
         "fields": [
@@ -33,8 +33,8 @@
             "NAME",
             "CLASSIFICATION",
             "OWNER",
-            "FROM",
-            "TO"
+            "FROM_LOCATION",
+            "TO_LOCATION"
         ],
         "primary_key": ["GISLINK"],
         "schedule": "Q"
