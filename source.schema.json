@@ -235,7 +235,7 @@
                 "description": "List of source field(s) used as primary key, must be a subset of `fields`",
                 "type": "array",
                 "items": {
-                    "type": "string"
+                    "type": ["string", "null"]
                 }
             }
         },
@@ -243,8 +243,7 @@
             "admin_area_abbreviation",
             "admin_area_group_name_abbreviation",
             "source",
-            "fields",
-            "primary_key"
+            "fields"
         ]
     }
 }

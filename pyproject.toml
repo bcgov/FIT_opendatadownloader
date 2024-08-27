@@ -32,6 +32,9 @@ test = [
   "build"
 ]
 
+[project.scripts]
+changedetector = "fit_changedetector.cli:cli"
+
 [project.urls]
 Homepage = "https://github.com/bcgov/fit_changedetector"
 Issues = "https://github.com/bcgov/fit_changedetector"

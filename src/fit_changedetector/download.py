@@ -1,53 +1,20 @@
 import json
 import logging
 import os
+from pathlib import Path
 import re
-import sys
+from urllib.parse import urlparse
 import zipfile
 
 import boto3
 from botocore.exceptions import NoCredentialsError, PartialCredentialsError, ClientError
-import click
-from cligj import verbose_opt, quiet_opt
 import geopandas
 import jsonschema
 from pyproj import CRS
 from slugify import slugify
 
 
-LOG_FORMAT = "%(asctime)s:%(levelname)s:%(name)s: %(message)s"
 LOG = logging.getLogger(__name__)
-
-
-def upload_file_to_s3(file_path, bucket_name, s3_key):
-    """
-    Upload a file to an S3 bucket.
-
-    :param file_path: Local path to the file to upload.
-    :param bucket_name: Name of the S3 bucket.
-    :param s3_key: Key (path) for the file in the S3 bucket.
-    :return: None
-    """
-    s3_client = boto3.client('s3')
-
-    try:
-        s3_client.upload_file(file_path, bucket_name, s3_key)
-        LOG.info(f"File {file_path} uploaded to {bucket_name}/{s3_key}")
-    except FileNotFoundError:
-        LOG.error(f"The file {file_path} was not found.")
-    except NoCredentialsError:
-        LOG.error("Credentials not available.")
-    except PartialCredentialsError:
-        LOG.error("Incomplete credentials provided.")
-    except ClientError as e:
-        LOG.error(f"Client error: {e}")
-    except Exception as e:
-        LOG.error(f"An error occurred: {e}")
-
-
-def configure_logging(verbosity):
-    log_level = max(10, 30 - 10 * verbosity)
-    logging.basicConfig(stream=sys.stderr, level=log_level, format=LOG_FORMAT)
 
 
 def parse_sources(sources):
@@ -66,7 +33,9 @@ def parse_sources(sources):
     for i, source in enumerate(sources):
         # create a slugified version of abbreviated name (and remove apostrophe from hudsons hope)
         parsed[i]["alias"] = slugify(
-            source["admin_area_abbreviation"].replace("'", ""), separator="_", lowercase=True
+            source["admin_area_abbreviation"].replace("'", ""),
+            separator="_",
+            lowercase=True,
         )
 
     LOG.info("Source json is valid")
@@ -74,7 +43,11 @@ def parse_sources(sources):
 
 
 def download_source(source):
-    """download data and do some simple validation
+    """
+    Download data, do some simple validation and standardization
+
+    :source: Dict defining source
+    :return: BC Albers GeoDataframe, with desired columns in lowercase
     """
     # load file
     df = geopandas.read_file(
@@ -105,8 +78,62 @@ def download_source(source):
         )
 
     # presume layer is defined correctly if no errors are raised
-    LOG.info(f"Download and validation successful: {source['alias']} - record count: {str(count)}")
+    LOG.info(
+        f"Download and validation successful: {source['alias']} - record count: {str(count)}"
+    )
+
+    # reproject to BC Albers if necessary
+    if df.crs != CRS.from_user_input(3005):
+        df = df.to_crs("EPSG:3005")
+
+    # standardize column names
+    df.columns = [x.lower() for x in df.columns]
+    df = df.rename_geometry("geom")
+
+    # retain only fields of interest
+    df = df[[c.lower() for c in source["fields"]] + ["geom"]]
+
     return df
+
+
+def save_source(df, source, out_path, out_file, out_layer):
+    """
+    Save downloaded dataframe to <out_path>/<out_file>.zip/<out_layer>
+    """
+    # write df to current working directory
+    df.to_file(out_file, driver="OpenFileGDB", layer=out_layer)
+
+    # compress
+    zip_gdb(out_file, out_file + ".zip")
+
+    # copy to s3
+    if is_s3_path(out_path):
+        prefix = urlparse(out_path, allow_fragments=False).path.lstrip('/')
+        s3_key = "/".join(
+            [
+                prefix,
+                source["admin_area_group_name_abbreviation"],
+                source["alias"],
+                out_file + ".zip",
+            ]
+        )
+        upload_file_to_s3(out_file + ".zip", os.environ.get("BUCKET"), s3_key)
+        LOG.info(f"{s3_key} saved to S3")
+
+    # alternatively, move to local path
+    else:
+        out_path = os.path.join(
+            out_path,
+            source["admin_area_group_name_abbreviation"],
+            source["alias"],
+        )
+        Path(out_path).mkdir(parents=True, exist_ok=True)
+        destination = os.path.join(
+            out_path,
+            out_file + ".zip",
+        )
+        os.rename(out_file + ".zip", destination)
+        LOG.info(f"{destination} saved to disk.")
 
 
 def zip_gdb(folder_path, zip_path):
@@ -116,7 +143,7 @@ def zip_gdb(folder_path, zip_path):
     :param folder_path: Path to the folder to be zipped.
     :param zip_path: Path to the resulting zip file.
     """
-    with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
         # Walk through the directory
         for root, dirs, files in os.walk(folder_path):
             for file in files:
@@ -136,93 +163,31 @@ def is_s3_path(path):
     :return: True if the path is an S3 path, False otherwise.
     """
     # Define a regular expression to match S3 paths
-    s3_pattern = re.compile(r'^s3://')
+    s3_pattern = re.compile(r"^s3://")
     return bool(s3_pattern.match(path))
 
 
-@click.command()
-@click.argument("sources_file", type=click.Path(exists=True), default="sources.json")
-@click.option(
-    "--out_file",
-    "-o",
-    default="parks.gdb",
-    help="Output file name",
-)
-@click.option(
-    "--out_prefix",
-    "-p",
-    type=click.Path(),
-    default=".",
-    help="Output s3 prefix",
-)
-@click.option(
-    "--out_layer",
-    "-nln",
-    default="parks",
-    help="Name of output file",
-)
-@click.option(
-    "--source_alias",
-    "-s",
-    default=None,
-    help="Validate and download just the specified source",
-)
-@click.option(
-    "--dry_run",
-    "-t",
-    is_flag=True,
-    help="Validate sources only, do not write data to file",
-)
-@verbose_opt
-@quiet_opt
-def download(
-    sources_file, out_file, out_prefix, out_layer, source_alias, dry_run, verbose, quiet
-):
-    """Download sources defined in provided file"""
-    configure_logging((verbose - quiet))
+def upload_file_to_s3(file_path, bucket_name, s3_key):
+    """
+    Upload a file to an S3 bucket.
 
-    # open sources file
-    with open(sources_file, "r") as f:
-        sources = json.load(f)
+    :param file_path: Local path to the file to upload.
+    :param bucket_name: Name of the S3 bucket.
+    :param s3_key: Key (path) for the file in the S3 bucket.
+    :return: None
+    """
+    s3_client = boto3.client("s3")
 
-    # parse it
-    sources = parse_sources(sources_file)
-
-    # if specified, use only one source
-    if source_alias:
-        sources = [s for s in sources if s["alias"] == source_alias]
-
-    # process all sources
-    for source in sources:
-
-        # download data, check to see if it meets expectations
-        df = download_source(source)
-
-        if not dry_run:
-
-            # reproject to BC Albers if necessary
-            if df.crs != CRS.from_user_input(3005):
-                df = df.to_crs("EPSG:3005")
-
-            # standardize column names
-            df.columns = [x.lower() for x in df.columns]
-            df = df.rename_geometry("geom")
-
-            # retain only fields of interest
-            df = df[[c.lower() for c in source["fields"]] + ["geom"]]
-
-            # dump to temp local file
-            df.to_file(out_file, driver="OpenFileGDB", layer=out_layer)
-
-            # compress
-            zip_gdb(out_file, out_file+".zip")
-
-            # upload
-            s3_key = "/".join([out_prefix, source[""], source[""], out_file + ".zip"])
-            upload_file_to_s3(out_file+".zip", os.environ.get("BUCKET"), s3_key)
-
-            LOG.info(f"{source['alias']} written to {s3_key}")
-
-
-if __name__ == "__main__":
-    download()
+    try:
+        s3_client.upload_file(file_path, bucket_name, s3_key)
+        LOG.info(f"File {file_path} uploaded to {bucket_name}/{s3_key}")
+    except FileNotFoundError:
+        LOG.error(f"The file {file_path} was not found.")
+    except NoCredentialsError:
+        LOG.error("Credentials not available.")
+    except PartialCredentialsError:
+        LOG.error("Incomplete credentials provided.")
+    except ClientError as e:
+        LOG.error(f"Client error: {e}")
+    except Exception as e:
+        LOG.error(f"An error occurred: {e}")
