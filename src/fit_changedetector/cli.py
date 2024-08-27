@@ -1,12 +1,14 @@
 import logging
 import json
-import os
 from pathlib import Path
 import sys
 
 import fit_changedetector as fcd
 import click
 from cligj import verbose_opt, quiet_opt
+
+
+LOG = logging.getLogger(__name__)
 
 
 def configure_logging(verbosity):
@@ -47,20 +49,34 @@ def cli():
     "--source_alias",
     "-s",
     default=None,
-    help="Validate and download just the specified source",
+    help="Validate and download only the specified source",
 )
 @click.option(
     "--dry_run",
     "-t",
     is_flag=True,
-    help="Validate sources only, do not write data to file",
+    help="Validate sources (do not write data to file)",
+)
+@click.option(
+    "--schedule",
+    "-s",
+    type=click.Choice(["D", "W", "M", "Q", "A"], case_sensitive=False),
+    help="Validate and download sources with given schedule tag",
 )
 @verbose_opt
 @quiet_opt
 def download(
-    sources_file, out_file, out_path, out_layer, source_alias, dry_run, verbose, quiet
+    sources_file,
+    out_file,
+    out_path,
+    out_layer,
+    source_alias,
+    dry_run,
+    schedule,
+    verbose,
+    quiet,
 ):
-    """Download sources as defined in sources_file config"""
+    """Download sources as defined in provided config"""
     configure_logging((verbose - quiet))
 
     # open sources file
@@ -73,6 +89,13 @@ def download(
     # if specified, use only one source
     if source_alias:
         sources = [s for s in sources if s["alias"] == source_alias]
+
+    # is specified, use only sources with given schedule tag
+    if schedule:
+        sources = [s for s in sources if s["schedule"] == schedule]
+        # alert if no sources match this schedule
+        if len(sources) == 0:
+            LOG.warning(f"No source with schedule={schedule} found in {sources_file}")
 
     # default to writing to file/layer with same name as sources config
     if not out_file:

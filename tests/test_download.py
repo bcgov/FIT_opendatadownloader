@@ -22,7 +22,7 @@ def test_data():
                 "PARK_LEVEL",
             ],
             "primary_key": ["PARKNAME", "AREA_ACRES"],
-            "download_frequency_days": 90,
+            "schedule": "M",
         },
         {
             "admin_area_abbreviation": "Surrey",
@@ -33,7 +33,7 @@ def test_data():
             "query": None,
             "fields": ["FACILITYID", "DESCRIPTION", "LOCATION", "PARK_NAME", "STATUS"],
             "primary_key": ["FACILITYID"],
-            "download_frequency_days": 90,
+            "schedule": "W",
         },
     ]
 
@@ -76,3 +76,10 @@ def test_invalid_file(test_data):
     source["fields"] = ["INVALID_COLUMN"]
     with pytest.raises(ValueError):
         download_source(source)
+
+
+def test_invalid_schedule(test_data):
+    sources = test_data
+    sources[0]["schedule"] = "MONTH"
+    with pytest.raises(ValidationError):
+        parse_sources(sources)

@@ -7,7 +7,6 @@ from urllib.parse import urlparse
 import zipfile
 
 import boto3
-from botocore.exceptions import NoCredentialsError, PartialCredentialsError, ClientError
 import geopandas
 import jsonschema
 from pyproj import CRS
@@ -106,9 +105,9 @@ def save_source(df, source, out_path, out_file, out_layer):
     # compress
     zip_gdb(out_file, out_file + ".zip")
 
-    # copy to s3
-    if is_s3_path(out_path):
-        prefix = urlparse(out_path, allow_fragments=False).path.lstrip('/')
+    # copy to s3 if out_path prefix is s3://
+    if bool(re.compile(r"^s3://").match(out_path)):
+        prefix = urlparse(out_path, allow_fragments=False).path.lstrip("/")
         s3_key = "/".join(
             [
                 prefix,
@@ -154,15 +153,3 @@ def zip_gdb(folder_path, zip_path):
                 relative_path = os.path.relpath(file_path, folder_path)
                 # Add file to the zip file
                 zipf.write(file_path, relative_path)
-
-
-def is_s3_path(path):
-    """
-    Check if the given path is an S3 path.
-
-    :param path: The path to check.
-    :return: True if the path is an S3 path, False otherwise.
-    """
-    # Define a regular expression to match S3 paths
-    s3_pattern = re.compile(r"^s3://")
-    return bool(s3_pattern.match(path))

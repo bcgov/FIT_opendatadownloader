@@ -237,13 +237,25 @@
                 "items": {
                     "type": ["string", "null"]
                 }
+            },
+            "schedule": {
+                "description": "Download frequency (D=day, W=week, M=month, Q=quarter/3 months, A=annual)",
+                "type": "string",
+                "enum": [
+                    "D",
+                    "W",
+                    "M",
+                    "Q",
+                    "A"
+                ]
             }
         },
         "required": [
             "admin_area_abbreviation",
             "admin_area_group_name_abbreviation",
             "source",
-            "fields"
+            "fields",
+            "schedule"
         ]
     }
 }

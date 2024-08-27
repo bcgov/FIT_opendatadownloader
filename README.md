@@ -4,50 +4,61 @@
 
 GeoBC Foundational Information and Technology (FIT) Section tool for monitoring open data and reporting on any detected changes.
 
-## Method
+## Workflow
 
-1. Based on sources and schedule in provided config file, download spatial data from the internet to BC object storage
+1. Based on sources and schedule defined in a provided config file, download spatial data from the internet to object storage
 2. Compare downloaded data to previous version
-3. If changes are detected to schema or data, generate a diff and report to data administrators responsible for ingesting data to Provincial databases
+3. If changes are detected to schema or data, generate a diff and/or report and alert data administrators
 
 
 ## Installation
 
-	pip install fit_changdetector
+Using `pip` managed by the target Python environment:
+
+	git clone git@github.com:bcgov/FIT_changedetector.git
+	cd FIT_changedetector
+	pip install .
 
 
 ## Usage
+
+A CLI is provided for typical tasks:
 
 1. Validate a sources configuration file:
 	
 		changedetector download sources_example.json --dry-run -v
 
-2. Download data defined in configuration file to local filesystem at /path/to/Change_Detection/<rd>/<muni>/parks.gdb:
+2. Download data defined in `sources_example.json` configuration file to individual `parks.gdb.zip` files per municipality, 
+   saving to `/path/to/Change_Detection/` on the local filesystem:
 
 		changedetector download sources_example.json -v -p /path/to/Change_Detection -o parks.gdb -nln parks
 
 
 ## Configuration
 
-Sources/layers to be downloaded are defined as json. See `sources_example.json` for an example and `source.schema.json` for the full schema definition.
+Sources/layers to be downloaded are defined as json. 
+For examples, see the automated download configurations (one per feature type) in the [`config`](config) folder.
+For the full schema definition, [`source.schema.json`](source.schema.json).
 
-| key                                | description |
-|--------------                      |-------------|
-| `admin_area_abbreviation`            | Abbreviated name of admin area, taken from `WHSE_LEGAL_ADMIN_BOUNDARIES.ABMS_MUNICIPALITIES_SP` |
-| `admin_area_group_name_abbreviation` | Abbreviated Regional District initials, as used by DRA program |
-| `metadata_url`                       | Link to source metadata, where available |
-| `source`                             | url or file path to file based source, format readable by GDAL/OGR |
-| `layer`                              | Name of layer to use within source, default is first layer in file |
-| `query`                              | Query to subset data in source/layer (OGR SQL) |
-| `fields`                             | List of source field(s) to retain in the download |
-| `primary_key`                        | List of source field(s) used as primary key (must be a subset of `fields`)|
+| key                                  | description                                                                          |
+|------------------------------------- |--------------------------------------------------------------------------------------|
+| `admin_area_abbreviation`            | Abbreviated name of admin area, taken from `WHSE_LEGAL_ADMIN_BOUNDARIES.ABMS_MUNICIPALITIES_SP` (required) |
+| `admin_area_group_name_abbreviation` | Abbreviated Regional District initials, as used by DRA program (required)            |
+| `metadata_url`                       | Link to source metadata (optional)                                                   |
+| `source`                             | url or file path to file based source, format readable by GDAL/OGR (required)        |
+| `layer`                              | Name of layer to use within source (optional, defaults to first layer in file)       |
+| `query`                              | Query to subset data in source/layer (OGR SQL) (optional)                            |
+| `fields`                             | List of source field(s) to retain in the download (required)                         |
+| `primary_key`                        | List of source field(s) used as primary key (optional, must be a subset of `fields`) |
+| `schedule   `                        | Download frequency (required, must be one of: [`D, W, M, Q, A`] - daily/weekly/monthly/quarterly/annual) |
+
 
 
 ## Local development and testing
 
 ### virtual environment
 
-Use whatever gdal is available on your system:
+Using your system GDAL:
 
 	$ git clone git@github.com:bcgov/FIT_changedetector.git
 	$ cd FIT_changedetector
@@ -58,8 +69,8 @@ Use whatever gdal is available on your system:
 
 ### Dockerized gdal
 
-Scripts must be capable of running on BCGov GTS infrastructure, using gdal 3.7.0.
-A Dockerfile is provided to create a similar environment.
+GDAL 3.7.0 is the latest available in a BCGov GTS Python environment.
+A Dockerfile is provided to create a similar testing environment.
 
 To build:
 
