@@ -1,0 +1,17 @@
+{
+    "parks": {
+        "metadata_url": null,
+        "source": "https://cosmos.surrey.ca/geo_ref/Images/OpenDataArchives/parks_GDB.zip",
+        "layer": "parks",
+        "query": null,
+        "fields": [
+            "FACILITYID",
+            "DESCRIPTION",
+            "LOCATION",
+            "PARK_NAME",
+            "STATUS"
+        ],
+        "primary_key": ["FACILITYID"],
+        "schedule": "Q"
+    }
+}

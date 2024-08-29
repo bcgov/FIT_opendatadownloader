@@ -1,0 +1,29 @@
+ACRD  - Alberni-Clayoquot
+BNRD  - Bulkley-Nechako
+CAPRD - Capital
+CCRD  - Central Coast
+CKRD  - Central Kootenay
+CMXRD - Comox Valley
+CORD  - Central Okanagan
+CRD   - Cariboo
+CSHRD - Columbia Shuswap
+CVRD  - Cowichan Valley
+EKRD  - East Kootenay
+FFGRD - Fraser-Fort George
+FVRD  - Fraser Valley
+KBRD  - Kootenay Boundary
+KSRD  - Kitimat-Stikine
+MVRD  - Metro Vancouver
+MWRD  - Mount Waddington
+NCRD  - North Coast
+NORD  - North Okanagan
+NRD   - Nanaimo
+NRRM  - Northern Rockies Regional Municipality
+OSRD  - Okanagan-Similkameen
+PRRD  - Peace River
+qRD   - qathet
+SCRD  - Sunshine Coast
+SLRD  - Squamish-Lillooet
+SRD   - Stikine Region (Unincorporated)
+STRD  - Strathcona
+TNRD  - Thompson-Nicola
