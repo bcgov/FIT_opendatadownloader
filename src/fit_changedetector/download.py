@@ -37,6 +37,10 @@ def parse_sources(sources):
             lowercase=True,
         )
 
+    # add null layer key if not present
+    if "layer" not in source.keys():
+        source["layer"] = None
+
     LOG.info("Source json is valid")
     return parsed
 
