@@ -38,7 +38,7 @@ def download(source):
     :return: BC Albers GeoDataframe, with desired columns in lowercase
     """
 
-    # download data from esri rest api endpoint to local geojson
+    # download data from esri rest api endpoint
     if source["protocol"] == "esri":
         df = GeoDataFrame.from_features(
             features=(
@@ -47,6 +47,7 @@ def download(source):
             crs=4326,
         )
 
+    # download data from location readable by ogr
     elif source["protocol"] == "http":
         df = geopandas.read_file(
             os.path.expandvars(source["source"]),
