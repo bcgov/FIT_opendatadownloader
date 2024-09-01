@@ -135,7 +135,9 @@ def process(
             if bool(re.compile(r"^s3://").match(out_path)):
                 s3_key = urlparse(out_path, allow_fragments=False).path.lstrip("/")
                 s3_client = boto3.client("s3")
-                s3_client.upload_file(out_file + ".zip", os.environ.get("BUCKET"), s3_key)
+                s3_client.upload_file(
+                    out_file + ".zip", os.environ.get("BUCKET"), s3_key
+                )
                 LOG.info(f"layer {layer['out_layer']} saved to {s3_key}")
                 os.unlink(out_file + ".zip")
 

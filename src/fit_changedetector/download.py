@@ -41,8 +41,10 @@ def download(source):
     # download data from esri rest api endpoint to local geojson
     if source["protocol"] == "esri":
         df = GeoDataFrame.from_features(
-            features=(EsriDumper(source["source"], fields=source["fields"], parent_logger=LOG)),
-            crs=4326
+            features=(
+                EsriDumper(source["source"], fields=source["fields"], parent_logger=LOG)
+            ),
+            crs=4326,
         )
 
     elif source["protocol"] == "http":
@@ -74,9 +76,7 @@ def download(source):
         )
 
     # presume layer is defined correctly if no errors are raised
-    LOG.info(
-        f"Download successful: {source['out_layer']} - record count: {str(count)}"
-    )
+    LOG.info(f"Download successful: {source['out_layer']} - record count: {str(count)}")
 
     # reproject to BC Albers if necessary
     if df.crs != CRS.from_user_input(3005):
