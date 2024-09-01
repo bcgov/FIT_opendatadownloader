@@ -89,7 +89,8 @@ def process(
     verbose,
     quiet,
 ):
-    """Download sources as defined in provided config"""
+    """Download sources as defined in provided config, returning a geodataframe
+    """
     configure_logging((verbose - quiet))
 
     with open(config_file, "r") as f:

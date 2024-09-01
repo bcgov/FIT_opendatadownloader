@@ -1,0 +1,10 @@
+{
+"type": "FeatureCollection",
+"features": [
+{ "type": "Feature", "id": "WHSE_IMAGERY_AND_BASE_MAPS.GSR_AIRPORTS_SVW.fid--11c4c3cc_191afa6f989_2a02", "geometry_name": "SHAPE", "properties": { "SOURCE_DATA_ID": "456", "SUPPLIED_SOURCE_ID_IND": "N", "AIRPORT_NAME": "VictoriaHarbour (Camel Point) Heliport", "DESCRIPTION": "heliport", "PHYSICAL_ADDRESS": "Victoria, BC", "ALIAS_ADDRESS": "Victoria, BC", "STREET_ADDRESS": null, "POSTAL_CODE": null, "LOCALITY": "Victoria" }, "geometry": { "type": "Point", "coordinates": [ -124.3877778, 48.41805556 ] } },
+{ "type": "Feature", "id": "WHSE_IMAGERY_AND_BASE_MAPS.GSR_AIRPORTS_SVW.fid--11c4c3cc_191afa6f989_2a03", "geometry_name": "SHAPE", "properties": { "SOURCE_DATA_ID": "457", "SUPPLIED_SOURCE_ID_IND": "N", "AIRPORT_NAME": "Victoria Inner Harbour Airport (Victoria Harbour Water Airport)", "DESCRIPTION": "water aerodrome", "PHYSICAL_ADDRESS": "Victoria, BC", "ALIAS_ADDRESS": "Victoria, BC", "STREET_ADDRESS": null, "POSTAL_CODE": null, "LOCALITY": "Victoria" }, "geometry": { "type": "Point", "coordinates": [ -123.371623, 48.42355066 ] } },
+{ "type": "Feature", "id": "WHSE_IMAGERY_AND_BASE_MAPS.GSR_AIRPORTS_SVW.fid--11c4c3cc_191afa6f989_2a04", "geometry_name": "SHAPE", "properties": { "SOURCE_DATA_ID": "458", "SUPPLIED_SOURCE_ID_IND": "N", "AIRPORT_NAME": "Victoria Harbour (Shoal Point) Heliport", "DESCRIPTION": "heliport", "PHYSICAL_ADDRESS": "Victoria, BC", "ALIAS_ADDRESS": "Victoria, BC", "STREET_ADDRESS": null, "POSTAL_CODE": null, "LOCALITY": "Victoria" }, "geometry": { "type": "Point", "coordinates": [ -123.3875994, 48.4232387 ] } }
+]
+}
+
+

@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import re
 
 from esridump.dumper import EsriDumper
 import geopandas
@@ -21,11 +22,18 @@ def parse_config(config):
     jsonschema.validate(instance=config, schema=schema)
     LOG.info("Source json is valid")
 
-    # add null layer key if not present
+    # for optional tags, set to None where not provided
     parsed = config
     for i, source in enumerate(config):
-        if "source_layer" not in source.keys():
-            parsed[i]["source_layer"] = None
+        for tag in ["source_layer", "query", "primary_key", "metadata_url"]:
+            if tag not in source.keys():
+                parsed[i][tag] = None
+
+    # validate pk
+    for source in parsed:
+        if source["primary_key"]:
+            if not set(source["primary_key"]).issubset(set(source["fields"])):
+                raise ValueError("Specified primary key(s) must be included in fields tag")
 
     return parsed
 
@@ -83,11 +91,18 @@ def download(source):
     if df.crs != CRS.from_user_input(3005):
         df = df.to_crs("EPSG:3005")
 
-    # standardize column names
-    df.columns = [x.lower() for x in df.columns]
+    # standardize column naming
     df = df.rename_geometry("geom")
+    cleaned_column_map = {}
+    for column in source["fields"]:
+        cleaned_column_map[column] = re.sub(r"\W+", "", column.lower().strip().replace(" ", "_"))
+    df = df.rename(columns=cleaned_column_map)
+    # retain only columns noted in config and geom
+    df = df[list(cleaned_column_map.values()) + ["geom"]]
 
-    # retain only fields of interest
-    df = df[[c.lower() for c in source["fields"]] + ["geom"]]
+    # if primary key(s) provided, sort data by key(s)
+    if source["primary_key"]:
+        pks = [cleaned_column_map[k] for k in source["primary_key"]]
+        df = df.sort_values(pks)
 
     return df

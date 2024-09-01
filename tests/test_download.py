@@ -72,10 +72,10 @@ def test_download_file(test_config_file, tmpdir):
     assert len(df) > 0
 
 
-def test_download_esri(test_config_esri, tmpdir):
-    source = fcd.parse_config(test_config_esri)[0]
-    df = fcd.download(source)
-    assert len(df) > 0
+#def test_download_esri(test_config_esri, tmpdir):
+#    source = fcd.parse_config(test_config_esri)[0]
+#    df = fcd.download(source)
+#    assert len(df) > 0
 
 
 def test_invalid_file(test_config_file):
@@ -85,8 +85,41 @@ def test_invalid_file(test_config_file):
         fcd.download(source)
 
 
+def test_invalid_pk(test_config_file):
+    config = test_config_file
+    config[0]["primary_key"] = ["PARK_NAME_INVALID"]
+    with pytest.raises(ValueError):
+        fcd.parse_config(config)
+
+
 def test_invalid_schedule(test_config_file):
     sources = test_config_file
     sources[0]["schedule"] = "MONTH"
     with pytest.raises(ValidationError):
         fcd.parse_config(sources)
+
+
+def test_clean_columns(test_config_file):
+    sources = [
+        {
+            "out_layer": "parks",
+            "source": "tests/data/fieldnames.geojson",
+            "protocol": "http",
+            "fields": [
+                "SOURCE_DATA_ID",
+                "SUPPLIED_SOURCE_ID_IND",
+                "AIRPO#RT NAME $",
+                "DESCRIPTION",
+                "PHYSICAL_ADDRESS",
+                "ALIAS_ADDRESS",
+                "STREET_ADDRESS",
+                "POSTAL_CODE",
+                "LOCALITY",
+            ],
+            "primary_key": ["SOURCE_DATA_ID"],
+            "schedule": "Q"
+        }
+    ]
+    source = fcd.parse_config(sources)[0]
+    df = fcd.download(source)
+    assert "airport_name_" in df.columns

@@ -53,7 +53,6 @@
                 "description": "Query to subset data in source/layer - ECQL for BCGW sources, OGR SQL for files",
                 "type": ["string", "null"]
             },
-
             "primary_key": {
                 "description": "List of source field(s) used as primary key, must be a subset of `fields`",
                 "type": "array",
@@ -64,7 +63,7 @@
             "metadata_url": {
                 "description": "Link to source metadata, where available",
                 "type": ["string", "null"]
-            },
+            }
         },
         "required": [
             "out_layer",
