@@ -6,9 +6,9 @@ GeoBC Foundational Information and Technology (FIT) Section tool for monitoring 
 
 ## Workflow
 
-1. Based on sources and schedule defined in a provided config file, download spatial data from the internet to object storage
-2. Compare downloaded data to previous version
-3. If changes are detected to schema or data, generate a diff and/or report and alert data administrators
+1. Based on sources and schedule defined in a provided config file, download spatial data from the internet
+2. Compare downloaded data to cached version on object storage
+3. If changes are detected, write the latest download to object storage along with a change report
 
 
 ## Installation

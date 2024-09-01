@@ -1,88 +1,81 @@
 import json
 import logging
 import os
-from pathlib import Path
-import re
-from urllib.parse import urlparse
-import zipfile
 
-import boto3
+from esridump.dumper import EsriDumper
 import geopandas
+from geopandas import GeoDataFrame
 import jsonschema
 from pyproj import CRS
-from slugify import slugify
 
 
 LOG = logging.getLogger(__name__)
 
 
-def parse_sources(sources):
-    """validate and parse sources data structure"""
+def parse_config(config):
+    """validate and parse config list of dicts"""
 
     # validate sources against schema doc
-    with open("source.schema.json", "r") as f:
+    with open("source_schema.json", "r") as f:
         schema = json.load(f)
-    jsonschema.validate(instance=sources, schema=schema)
-
-    # add index key, enumerating the sources
-    sources = [dict(d, index=index + 1) for (index, d) in enumerate(sources)]
-
-    # add alias key, a sluggified/lowercasified version of admin_area_abbreviation
-    parsed = sources
-    for i, source in enumerate(sources):
-        # create a slugified version of abbreviated name (and remove apostrophe from hudsons hope)
-        parsed[i]["alias"] = slugify(
-            source["admin_area_abbreviation"].replace("'", ""),
-            separator="_",
-            lowercase=True,
-        )
+    jsonschema.validate(instance=config, schema=schema)
+    LOG.info("Source json is valid")
 
     # add null layer key if not present
-    if "layer" not in source.keys():
-        source["layer"] = None
+    parsed = config
+    for i, source in enumerate(config):
+        if "source_layer" not in source.keys():
+            parsed[i]["source_layer"] = None
 
-    LOG.info("Source json is valid")
     return parsed
 
 
-def download_source(source):
+def download(source):
     """
     Download data, do some simple validation and standardization
 
     :source: Dict defining source
     :return: BC Albers GeoDataframe, with desired columns in lowercase
     """
-    # load file
-    df = geopandas.read_file(
-        os.path.expandvars(source["source"]),
-        layer=source["layer"],
-        where=source["query"],
-    )
+
+    # download data from esri rest api endpoint to local geojson
+    if source["protocol"] == "esri":
+        df = GeoDataFrame.from_features(
+            features=(EsriDumper(source["source"], fields=source["fields"], parent_logger=LOG)),
+            crs=4326
+        )
+
+    elif source["protocol"] == "http":
+        df = geopandas.read_file(
+            os.path.expandvars(source["source"]),
+            layer=source["source_layer"],
+            where=source["query"],
+        )
 
     # are expected columns present?
     columns = [x.lower() for x in df.columns]
     for column in source["fields"]:
         if column and column.lower() not in columns:
             raise ValueError(
-                f"Validation error: {source['alias']} - column {column} is not present, modify config 'fields'"
+                f"Download error: {source['out_layer']} - column {column} is not present, modify 'fields'"
             )
 
     # is there data?
     count = len(df.index)
     if count == 0:
         raise ValueError(
-            f"Validation error: {source['alias']} - no data returned, check source and query"
+            f"Download error: {source['out_layer']} - no data returned, check source and query"
         )
 
     # is a crs defined?
     if not df.crs:
         raise ValueError(
-            "Source does not have a defined projection/coordinate reference system"
+            f"Download error: {source['out_layer']} does not have a defined projection/coordinate reference system"
         )
 
     # presume layer is defined correctly if no errors are raised
     LOG.info(
-        f"Download and validation successful: {source['alias']} - record count: {str(count)}"
+        f"Download successful: {source['out_layer']} - record count: {str(count)}"
     )
 
     # reproject to BC Albers if necessary
@@ -99,61 +92,8 @@ def download_source(source):
     return df
 
 
-def save_source(df, source, out_path, out_file, out_layer):
+def df2gdbzip(df, out_path, out_layer):
     """
-    Save downloaded dataframe to <out_path>/<out_file>.zip/<out_layer>
+    Save downloaded dataframe to <out_path>/<out_layer>.zip/<out_layer>
     """
-    # write df to current working directory
-    df.to_file(out_file, driver="OpenFileGDB", layer=out_layer)
 
-    # compress
-    zip_gdb(out_file, out_file + ".zip")
-
-    # copy to s3 if out_path prefix is s3://
-    if bool(re.compile(r"^s3://").match(out_path)):
-        prefix = urlparse(out_path, allow_fragments=False).path.lstrip("/")
-        s3_key = "/".join(
-            [
-                prefix,
-                source["admin_area_group_name_abbreviation"],
-                source["alias"],
-                out_file + ".zip",
-            ]
-        )
-        s3_client = boto3.client("s3")
-        s3_client.upload_file(out_file + ".zip", os.environ.get("BUCKET"), s3_key)
-        LOG.info(f"{s3_key} saved to S3")
-
-    # alternatively, move to local path
-    else:
-        out_path = os.path.join(
-            out_path,
-            source["admin_area_group_name_abbreviation"],
-            source["alias"],
-        )
-        Path(out_path).mkdir(parents=True, exist_ok=True)
-        destination = os.path.join(
-            out_path,
-            out_file + ".zip",
-        )
-        os.rename(out_file + ".zip", destination)
-        LOG.info(f"{destination} saved to disk.")
-
-
-def zip_gdb(folder_path, zip_path):
-    """
-    Compress the contents of an entire folder into a zip file.
-
-    :param folder_path: Path to the folder to be zipped.
-    :param zip_path: Path to the resulting zip file.
-    """
-    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
-        # Walk through the directory
-        for root, dirs, files in os.walk(folder_path):
-            for file in files:
-                # Create the full file path
-                file_path = os.path.join(root, file)
-                # Create a relative path for the file in the zip
-                relative_path = os.path.relpath(file_path, folder_path)
-                # Add file to the zip file
-                zipf.write(file_path, relative_path)
