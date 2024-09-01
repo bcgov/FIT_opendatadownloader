@@ -1,11 +1,9 @@
 [
          {
             "out_layer": "parks",
-            "metadata_url": null,
             "source": "https://coquitlam-spatial.s3.us-west-2.amazonaws.com/PRC/GDB/Coquitlam_Parks_GDB.zip",
             "source_layer": "parks",
             "protocol": "http",
-            "query": null,
             "fields": [
                 "PARKNAME",
                 "ADDRESS",
@@ -19,11 +17,9 @@
         },
         {
             "out_layer": "roads",
-            "metadata_url": null,
             "source": "https://coquitlam-spatial.s3.us-west-2.amazonaws.com/Transportation/GDB/Coquitlam_Transportation_GDB.zip",
             "source_layer": "roads",
             "protocol": "http",
-            "query": null,
             "fields": [
                 "STATUS",
                 "CLASS",

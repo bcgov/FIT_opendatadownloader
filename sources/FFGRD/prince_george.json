@@ -1,10 +1,8 @@
 [
     {
         "out_layer": "roads",
-        "metadata_url": null,
         "source": "https://services2.arcgis.com/CnkB6jCzAsyli34z/arcgis/rest/services/OpenData_RoadTraffic/FeatureServer/4",
         "protocol": "esri",
-        "query": null,
         "fields": [
             "AssetID",
             "Location",
@@ -23,8 +21,8 @@
             "DGRoute",
             "SpeedLimit"
         ],
+        "schedule": "Q",
         "primary_key": ["AssetID"],
-        "schedule": "Q"
     }
 ]
 

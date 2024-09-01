@@ -90,10 +90,3 @@ def download(source):
     df = df[[c.lower() for c in source["fields"]] + ["geom"]]
 
     return df
-
-
-def df2gdbzip(df, out_path, out_layer):
-    """
-    Save downloaded dataframe to <out_path>/<out_layer>.zip/<out_layer>
-    """
-

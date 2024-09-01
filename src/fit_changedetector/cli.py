@@ -80,7 +80,7 @@ def cli():
 )
 @verbose_opt
 @quiet_opt
-def download(
+def process(
     config_file,
     layer,
     out_path,
@@ -120,9 +120,15 @@ def download(
 
         if not dry_run:
 
-            # write to gdb in cwd and compress
+            # write to gdb in cwd
             out_file = layer["out_layer"] + ".gdb"
             df.to_file(out_file, driver="OpenFileGDB", layer=layer["out_layer"])
+
+            # get previous version (if present)
+
+            # compare to previous version
+
+            # have changes occured? If so, zip and write to target location
             zip_gdb(out_file, out_file + ".zip")
 
             # copy to s3 if out_path prefix is s3://

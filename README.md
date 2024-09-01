@@ -24,35 +24,35 @@ Using `pip` managed by the target Python environment:
 
 A CLI is provided for typical tasks:
 
-1. Validate a sources configuration file:
+1. Validate a configuration file for a given source:
 	
-		changedetector download sources_example.json --dry-run -v
+		changedetector process source_example.json --dry-run -v
 
-2. Download data defined in `sources_example.json` configuration file to individual `parks.gdb.zip` files per municipality, 
+2. Download layers defined in `source_example.json` configuration file to zipped gdb (one file per layer),
    saving to `/path/to/Change_Detection/` on the local filesystem:
 
-		changedetector download sources_example.json -v -p /path/to/Change_Detection -o parks.gdb -nln parks
+		changedetector download sources_example.json -v -p /path/to/Change_Detection
 
 
 ## Configuration
 
-Sources/layers to be downloaded are defined as json. 
-For examples, see the automated download configurations (one per feature type) in the [`config`](config) folder.
-For the full schema definition, [`source.schema.json`](source.schema.json).
+Layers for downloaded are configured per jusrisdiction in [sources](sources). 
+Each config .json file has several tag defining how to handle data for the given jurisdiciton:
 
-| key                                  | description                                                                          |
-|------------------------------------- |--------------------------------------------------------------------------------------|
-| `admin_area_abbreviation`            | Abbreviated name of admin area, taken from `WHSE_LEGAL_ADMIN_BOUNDARIES.ABMS_MUNICIPALITIES_SP` (required) |
-| `admin_area_group_name_abbreviation` | Abbreviated Regional District initials, as used by DRA program (required)            |
-| `metadata_url`                       | Link to source metadata (optional)                                                   |
-| `source`                             | url or file path to file based source, format readable by GDAL/OGR (required)        |
-| `layer`                              | Name of layer to use within source (optional, defaults to first layer in file)       |
-| `query`                              | Query to subset data in source/layer (OGR SQL) (optional)                            |
-| `fields`                             | List of source field(s) to retain in the download (required)                         |
-| `primary_key`                        | List of source field(s) used as primary key (optional, must be a subset of `fields`) |
-| `schedule   `                        | Download frequency (required, must be one of: [`D, W, M, Q, A`] - daily/weekly/monthly/quarterly/annual) |
+| tag            | required              | description                                                                          |
+|----------------| --------------------- |--------------------------------------------------------------------------------------|
+| `out_layer`    |  Y                    | Name of target file/layer (`parks`, `roads`, etc)                                    |
+| `source`       |  Y                    | url or file path to file based source, format readable by GDAL/OGR (required)        |
+| `protocol`     |  Y                    | Type of download (`http` - file via http, `esri` - dESRI REST API endpoint)          |
+| `fields`       |  Y                    | List of source field(s) to retain in the download (required)                         |
+| `schedule   `  |  Y                    | Download frequency (required, must be one of: [`D, W, M, Q, A`] - daily/weekly/monthly/quarterly/annual) |
+| `source_layer` |  N                    | Name of layer to use within source (optional, defaults to first layer in file)       |
+| `query`        |  N                    | Query to subset data in source/layer (OGR SQL) (optional, currently only supported for sources where `protocol` is `http`) | 
+| `primary_key`  |  N                    | List of source field(s) used as primary key (optional, must be a subset of `fields`) |
+| `metadata_url` |  N                    | Link to source metadata                                                    |
 
 
+For the full schema definition, see [`source.schema.json`](source.schema.json).
 
 ## Local development and testing
 

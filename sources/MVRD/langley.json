@@ -1,9 +1,9 @@
-{
-    "roads":  {
-        "metadata_url": null,
+[
+    {
+        "out_layer": "roads",
         "source": "/vsizip/{/vsicurl/https://governmentofbc.maps.arcgis.com/sharing/rest/content/items/4bba119c2e9042d683cc9378fb1e836e/data}/CoL_TransportationNetwork Jan 3 2024.gdb",
-        "layer": "TRN_ROADS",
-        "query": null,
+        "source_layer": "TRN_ROADS",
+        "protocol": "http",
         "fields": [
             "GISLINK",
             "NAME",
@@ -14,7 +14,5 @@
         ],
         "primary_key": ["GISLINK"],
         "schedule": "Q"
-    }
-}
-
-
+        }
+]

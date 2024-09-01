@@ -15,10 +15,6 @@
                     "parks"
                     ]
             },
-            "metadata_url": {
-                "description": "Link to source metadata, where available",
-                "type": ["string", "null"]
-            },
             "source": {
                 "description": "url/file path to a file based source readable by GDAL/OGR or a Esri REST layer endpoint URL",
                 "type": "string"
@@ -31,26 +27,11 @@
                     "esri"
                 ]
             },
-            "source_layer": {
-                "description": "Name of layer to use within source, default is first layer in file",
-                "type": "string"
-            },
-            "query": {
-                "description": "Query to subset data in source/layer - ECQL for BCGW sources, OGR SQL for files",
-                "type": ["string", "null"]
-            },
             "fields": {
                 "description": "List of source field(s) to retain in the download",
                 "type": "array",
                 "items": {
                     "type": "string"
-                }
-            },
-            "primary_key": {
-                "description": "List of source field(s) used as primary key, must be a subset of `fields`",
-                "type": "array",
-                "items": {
-                    "type": ["string", "null"]
                 }
             },
             "schedule": {
@@ -63,7 +44,27 @@
                     "Q",
                     "A"
                 ]
-            }
+            },
+            "source_layer": {
+                "description": "Name of layer to use within source, default is first layer in file",
+                "type": "string"
+            },
+            "query": {
+                "description": "Query to subset data in source/layer - ECQL for BCGW sources, OGR SQL for files",
+                "type": ["string", "null"]
+            },
+
+            "primary_key": {
+                "description": "List of source field(s) used as primary key, must be a subset of `fields`",
+                "type": "array",
+                "items": {
+                    "type": ["string", "null"]
+                }
+            },
+            "metadata_url": {
+                "description": "Link to source metadata, where available",
+                "type": ["string", "null"]
+            },
         },
         "required": [
             "out_layer",
