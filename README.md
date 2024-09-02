@@ -43,7 +43,7 @@ Each config .json file has several tag defining how to handle data for the given
 |----------------| --------------------- |--------------------------------------------------------------------------------------|
 | `out_layer`    |  Y                    | Name of target file/layer (`parks`, `roads`, etc)                                    |
 | `source`       |  Y                    | url or file path to file based source, format readable by GDAL/OGR (required)        |
-| `protocol`     |  Y                    | Type of download (`http` - file via http, `esri` - dESRI REST API endpoint)          |
+| `protocol`     |  Y                    | Type of download (`http` - file via http, `esri` - ESRI REST API endpoint, `bcgw` - download BCGW table via WFS)          |
 | `fields`       |  Y                    | List of source field(s) to retain in the download (required)                         |
 | `schedule   `  |  Y                    | Download frequency (required, must be one of: [`D, W, M, Q, A`] - daily/weekly/monthly/quarterly/annual) |
 | `source_layer` |  N                    | Name of layer to use within source (optional, defaults to first layer in file)       |
