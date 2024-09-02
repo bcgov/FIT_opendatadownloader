@@ -3,6 +3,7 @@ import logging
 import os
 import re
 
+import bcdata
 from esridump.dumper import EsriDumper
 import geopandas
 from geopandas import GeoDataFrame
@@ -54,6 +55,10 @@ def download(source):
             ),
             crs=4326,
         )
+
+    # download from BC WFS
+    elif source["protocol"] == 'bcgw':
+        df = bcdata.get_data(source["source"], query=source["query"], as_gdf=True)
 
     # download data from location readable by ogr
     elif source["protocol"] == "http":

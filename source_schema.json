@@ -20,11 +20,12 @@
                 "type": "string"
             },
             "protocol": {
-                "description": "Resource type for the source, HTTP or ESRI",
+                "description": "Resource type for the source, one of http / esri / bcgw",
                 "type": "string",
                 "enum": [
                     "http",
-                    "esri"
+                    "esri",
+                    "bcgw"
                 ]
             },
             "fields": {

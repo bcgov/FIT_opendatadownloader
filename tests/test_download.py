@@ -1,5 +1,6 @@
 import pytest
 from jsonschema.exceptions import ValidationError
+
 import fit_changedetector as fcd
 
 
@@ -76,6 +77,26 @@ def test_download_file(test_config_file, tmpdir):
 #    source = fcd.parse_config(test_config_esri)[0]
 #    df = fcd.download(source)
 #    assert len(df) > 0
+
+def test_download_bcgw(tmpdir):
+    sources = [
+        {
+            "out_layer": "parks",
+            "source": "WHSE_IMAGERY_AND_BASE_MAPS.GSR_AIRPORTS_SVW",
+            "protocol": "bcgw",
+            "fields": [
+                "SOURCE_DATA_ID",
+                "AIRPORT_NAME",
+                "DESCRIPTION",
+                "LOCALITY",
+            ],
+            "query": "SOURCE_DATA_ID in (456, 457, 458)",
+            "primary_key": ["SOURCE_DATA_ID"],
+            "schedule": "Q"
+        }
+    ]
+    source = fcd.parse_config(sources)[0]
+    assert len(fcd.download(source)) == 3
 
 
 def test_invalid_file(test_config_file):
