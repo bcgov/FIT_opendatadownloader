@@ -4,13 +4,13 @@ on:
     branches: [ main]
     paths:
       - '.github/workflows/validate.yaml'
-      - 'config/**'
+      - 'sources/**'
       - 'source.schema.json'
   pull_request:
     branches: [ main ]
     paths:
       - '.github/workflows/validate.yaml'
-      - 'config/**'
+      - 'sources/**'
       - 'source.schema.json'
 env:
   AWS_ENDPOINT_URL: "https://nrs.objectstore.gov.bc.ca"
@@ -32,7 +32,7 @@ jobs:
     - uses: actions/checkout@v4
     - id: set-matrix
       run: |
-        DATA=$(find "sources" -type f -name "*.json" | jq -R -s -c 'split("\n")[:-1]')
+        DATA=$(find sources -iname "*.json" -exec sh -c 'printf "%s\n" "${0%.*}"' {} ';' | cut -d'/' -f2- | jq -R -s -c 'split("\n")[:-1]')
         echo "matrix=$DATA" >> $GITHUB_OUTPUT
   validate:
     runs-on: ubuntu-latest
@@ -51,4 +51,4 @@ jobs:
           python -m pip install .
       - name: Validate all sources
         run: |
-          changedetector -Vv ${{ matrix.arg }}
+          changedetector -Vv sources/${{ matrix.arg }}.json
