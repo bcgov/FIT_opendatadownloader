@@ -1,0 +1,29 @@
+[
+    {
+        "out_layer": "roads",
+        "source": "https://services2.arcgis.com/CnkB6jCzAsyli34z/arcgis/rest/services/OpenData_RoadTraffic/FeatureServer/4",
+        "protocol": "esri",
+        "fields": [
+            "AssetID",
+            "Location",
+            "StrName",
+            "StrType",
+            "SurfaceMaterial",
+            "NumberofLanes",
+            "StrPrefix",
+            "StrSuffix",
+            "FullName",
+            "LF_Addr",
+            "RF_Addr",
+            "LT_Addr",
+            "RT_Addr",
+            "SubType_TEXT",
+            "DGRoute",
+            "SpeedLimit"
+        ],
+        "schedule": "Q",
+        "primary_key": ["AssetID"],
+    }
+]
+
+

@@ -1,13 +1,18 @@
-from datetime import datetime
 import logging
 import json
+import os
 from pathlib import Path
+import re
 import sys
+import shutil
+from urllib.parse import urlparse
+import zipfile
 
-
-import fit_changedetector as fcd
+import boto3
 import click
 from cligj import verbose_opt, quiet_opt
+
+import fit_changedetector as fcd
 
 
 LOG = logging.getLogger(__name__)
@@ -22,6 +27,25 @@ def configure_logging(verbosity):
     )
 
 
+def zip_gdb(folder_path, zip_path):
+    """
+    Compress the contents of an entire folder into a zip file.
+
+    :param folder_path: Path to the folder to be zipped.
+    :param zip_path: Path to the resulting zip file.
+    """
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
+        # Walk through the directory
+        for root, dirs, files in os.walk(folder_path):
+            for file in files:
+                # Create the full file path
+                file_path = os.path.join(root, file)
+                # Create a relative path for the file in the zip
+                relative_path = os.path.relpath(file_path, folder_path)
+                # Add file to the zip file
+                zipf.write(file_path, relative_path)
+
+
 @click.group()
 @click.version_option(version=fcd.__version__, message="%(version)s")
 def cli():
@@ -29,11 +53,11 @@ def cli():
 
 
 @cli.command()
-@click.argument("sources_file", type=click.Path(exists=True), default="sources.json")
+@click.argument("config_file", type=click.Path(exists=True))
 @click.option(
-    "--out_file",
-    "-o",
-    help="Output file name",
+    "--layer",
+    "-l",
+    help="Layer to process in provided config",
 )
 @click.option(
     "--out_path",
@@ -41,17 +65,6 @@ def cli():
     type=click.Path(),
     default=".",
     help="Output path or s3 prefix",
-)
-@click.option(
-    "--out_layer",
-    "-nln",
-    help="Output layer name",
-)
-@click.option(
-    "--source_alias",
-    "-s",
-    default=None,
-    help="Validate and download only the specified source",
 )
 @click.option(
     "--dry_run",
@@ -67,55 +80,81 @@ def cli():
 )
 @verbose_opt
 @quiet_opt
-def download(
-    sources_file,
-    out_file,
+def process(
+    config_file,
+    layer,
     out_path,
-    out_layer,
-    source_alias,
     dry_run,
     schedule,
     verbose,
     quiet,
 ):
-    """Download sources as defined in provided config"""
+    """Download sources as defined in provided config, returning a geodataframe"""
     configure_logging((verbose - quiet))
 
-    # open sources file
-    with open(sources_file, "r") as f:
-        sources = json.load(f)
+    with open(config_file, "r") as f:
+        config = json.load(f)
 
-    # parse sources
-    sources = fcd.parse_sources(sources)
+    # parse config, returning a list of dicts defining layers to process
+    sources = fcd.parse_config(config)
 
-    # if specified, use only one source
-    if source_alias:
-        sources = [s for s in sources if s["alias"] == source_alias]
+    # if specified, download only specified layer
+    if layer:
+        config = [s for s in config if s["layer"] == layer]
+        # alert if no sources match this schedule
+        if len(sources) == 0:
+            LOG.warning(f"No layer named {layer} found in {config}")
 
-    # is specified, use only sources with given schedule tag
+    # if specified, use only sources with given schedule tag
     if schedule:
         sources = [s for s in sources if s["schedule"] == schedule]
         # alert if no sources match this schedule
         if len(sources) == 0:
-            LOG.warning(f"No source with schedule={schedule} found in {sources_file}")
+            LOG.warning(f"No source with schedule={schedule} found in {config}")
 
-    # default to writing to file/layer with same name as sources config,
-    # but adding YYYY-MM-DD suffix to gdb name
-    if not out_file:
-        out_file = (
-            Path(sources_file).stem
-            + "_"
-            + datetime.today().strftime("%Y-%m-%d")
-            + ".gdb"
-        )
-    if not out_layer:
-        out_layer = Path(sources_file).stem
-
-    # process all sources
-    for source in sources:
+    # process all layers defined in source config
+    for layer in sources:
 
         # download data, do some tidying/standardization
-        df = fcd.download_source(source)
+        df = fcd.download(layer)
 
         if not dry_run:
-            fcd.save_source(df, source, out_path, out_file, out_layer)
+
+            # write to gdb in cwd
+            out_file = layer["out_layer"] + ".gdb"
+            df.to_file(out_file, driver="OpenFileGDB", layer=layer["out_layer"])
+
+            # get previous version (if present)
+
+            # compare to previous version
+
+            # have changes occured? If so, zip and write to target location
+            zip_gdb(out_file, out_file + ".zip")
+
+            # copy to s3 if out_path prefix is s3://
+            if bool(re.compile(r"^s3://").match(out_path)):
+                s3_key = urlparse(out_path, allow_fragments=False).path.lstrip("/")
+                s3_client = boto3.client("s3")
+                s3_client.upload_file(
+                    out_file + ".zip", os.environ.get("BUCKET"), s3_key
+                )
+                LOG.info(f"layer {layer['out_layer']} saved to {s3_key}")
+                os.unlink(out_file + ".zip")
+
+            # alternatively, move to local path
+            elif out_path != ".":
+                Path(out_path).mkdir(parents=True, exist_ok=True)
+                destination = os.path.join(
+                    out_path,
+                    out_file + ".zip",
+                )
+                os.rename(out_file + ".zip", destination)
+                LOG.info(f"layer {layer['out_layer']} saved to {destination}")
+                os.unlink(out_file + ".zip")
+
+            # do nothing if out_path is empty
+            elif out_path == ".":
+                LOG.info(f"layer {layer['out_layer']} saved to {out_file}.zip")
+
+            # cleanup
+            shutil.rmtree(out_file)
