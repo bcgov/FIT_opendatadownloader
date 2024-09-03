@@ -19,11 +19,13 @@ classifiers = [
     "Operating System :: OS Independent"
 ]
 dependencies = [
+  "bcdata",
   "boto3",
   "click",
-  "geopandas==0.14.4",
-  "python-slugify",
-  "jsonschema"
+  "duckdb",
+  "esridump",
+  "geopandas",
+  "jsonschema",
 ]
 
 [project.optional-dependencies]

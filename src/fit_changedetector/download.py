@@ -1,3 +1,4 @@
+import hashlib
 import json
 import logging
 import os
@@ -34,7 +35,9 @@ def parse_config(config):
     for source in parsed:
         if source["primary_key"]:
             if not set(source["primary_key"]).issubset(set(source["fields"])):
-                raise ValueError("Specified primary key(s) must be included in fields tag")
+                raise ValueError(
+                    "Specified primary key(s) must be included in fields tag"
+                )
 
     return parsed
 
@@ -57,7 +60,7 @@ def download(source):
         )
 
     # download from BC WFS
-    elif source["protocol"] == 'bcgw':
+    elif source["protocol"] == "bcgw":
         df = bcdata.get_data(source["source"], query=source["query"], as_gdf=True)
 
     # download data from location readable by ogr
@@ -100,7 +103,9 @@ def download(source):
     df = df.rename_geometry("geom")
     cleaned_column_map = {}
     for column in source["fields"]:
-        cleaned_column_map[column] = re.sub(r"\W+", "", column.lower().strip().replace(" ", "_"))
+        cleaned_column_map[column] = re.sub(
+            r"\W+", "", column.lower().strip().replace(" ", "_")
+        )
     df = df.rename(columns=cleaned_column_map)
     # retain only columns noted in config and geom
     df = df[list(cleaned_column_map.values()) + ["geom"]]
@@ -109,5 +114,27 @@ def download(source):
     if source["primary_key"]:
         pks = [cleaned_column_map[k] for k in source["primary_key"]]
         df = df.sort_values(pks)
+
+    # default to creating hash on all input fields, but if supplied use the pk(s)
+    if pks:
+        hashcols = pks
+    else:
+        hashcols = df.columns
+
+    # check that output hashed id column is not already present
+    if "fcd_load_id" not in df.columns:
+        load_id_column = "fcd_load_id"
+    else:
+        raise Warning(
+            "column fcd_load_id is present in input dataset, using __fcd_load_id__ instead and overwriting any existing values"
+        )
+        load_id_column = "__" + load_id_column + "__"
+
+    df[load_id_column] = df[hashcols].apply(
+        lambda x: hashlib.sha256(
+            "|".join(x.astype(str).fillna("NULL").values).encode("utf-8")
+        ).hexdigest(),
+        axis=1,
+    )
 
     return df

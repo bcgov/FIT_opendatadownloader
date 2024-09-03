@@ -1,5 +1,7 @@
+bcdata
 boto3
 click
-geopandas==0.14.4
+duckdb
+esridump
+geopandas
 jsonschema
-python-slugify
