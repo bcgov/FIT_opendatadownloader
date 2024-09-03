@@ -46,37 +46,37 @@ def zip_gdb(folder_path, zip_path):
                 zipf.write(file_path, relative_path)
 
 
-@click.group()
-@click.version_option(version=fcd.__version__, message="%(version)s")
-def cli():
-    pass
-
-
-@cli.command()
+@click.command()
 @click.argument("config_file", type=click.Path(exists=True))
 @click.option(
     "--layer",
     "-l",
-    help="Layer to process in provided config",
+    help="Layer to process in provided config.",
 )
 @click.option(
-    "--out_path",
-    "-p",
+    "--out-path",
+    "-o",
     type=click.Path(),
     default=".",
-    help="Output path or s3 prefix",
+    help="Output path or s3 prefix.",
 )
 @click.option(
-    "--dry_run",
-    "-t",
+    "--force",
+    "-f",
     is_flag=True,
-    help="Validate sources (do not write data to file)",
+    help="Force download to out-path without running change detection.",
 )
 @click.option(
     "--schedule",
     "-s",
     type=click.Choice(["D", "W", "M", "Q", "A"], case_sensitive=False),
-    help="Validate and download sources with given schedule tag",
+    help="Process only sources with given schedule tag.",
+)
+@click.option(
+    "--validate",
+    "-V",
+    is_flag=True,
+    help="Validate configuration",
 )
 @verbose_opt
 @quiet_opt
@@ -84,12 +84,13 @@ def process(
     config_file,
     layer,
     out_path,
-    dry_run,
+    force,
     schedule,
+    validate,
     verbose,
     quiet,
 ):
-    """Download sources as defined in provided config, returning a geodataframe"""
+    """For each configured layer - download latest, detect changes, write to file"""
     configure_logging((verbose - quiet))
 
     with open(config_file, "r") as f:
@@ -118,17 +119,22 @@ def process(
         # download data, do some tidying/standardization
         df = fcd.download(layer)
 
-        if not dry_run:
+        if not validate:
 
             # write to gdb in cwd
             out_file = layer["out_layer"] + ".gdb"
             df.to_file(out_file, driver="OpenFileGDB", layer=layer["out_layer"])
 
-            # get previous version (if present)
+            # run change detection unless otherwise specified
+            # if not force:
+            # - get previous version (if present)
+            # - compare to previous version
+            # - if changes detected, modify output path to include <fcd_YYYYMMDD> prefix,
+            # - write diffs / reports
 
-            # compare to previous version
+            # then write data
 
-            # have changes occured? If so, zip and write to target location
+            # zip and write to target location
             zip_gdb(out_file, out_file + ".zip")
 
             # copy to s3 if out_path prefix is s3://
@@ -158,3 +164,7 @@ def process(
 
             # cleanup
             shutil.rmtree(out_file)
+
+
+if __name__ == '__main__':
+    process()
