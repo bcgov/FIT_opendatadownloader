@@ -31,10 +31,11 @@ jobs:
     environment: production
     needs: get-matrix
     strategy:
-        matrix:
-          arg: ${{fromJson(needs.get-matrix.outputs.matrix)}}
+      fail-fast: false
+      matrix:
+        arg: ${{fromJson(needs.get-matrix.outputs.matrix)}}
     env:
-        DEBIAN_FRONTEND: noninteractive
+      DEBIAN_FRONTEND: noninteractive
     steps:
       - uses: actions/checkout@v4
       - name: Install tool
@@ -42,4 +43,4 @@ jobs:
           python -m pip install .
       - name: Process source
         run: |
-          changedetector --out_path s3://$BUCKET/Change_Detection/${{ matrix.arg }} -s Q ${{ matrix.arg }}.json
+          changedetector --out-path s3://$BUCKET/Change_Detection/${{ matrix.arg }} -s Q ${{ matrix.arg }}.json
