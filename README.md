@@ -58,7 +58,7 @@ For the full schema definition, see [`source.schema.json`](source.schema.json).
 
 ### virtual environment
 
-Using your system GDAL:
+Using GDAL on your system:
 
 	$ git clone git@github.com:bcgov/FIT_changedetector.git
 	$ cd FIT_changedetector
@@ -67,10 +67,9 @@ Using your system GDAL:
 	$ pip install -e .[test]
 	(.venv) $ py.test
 
-### Dockerized gdal
+### Dockerized environment
 
-GDAL 3.7.0 is the latest available in a BCGov GTS Python environment.
-A Dockerfile is provided to create a similar testing environment.
+Using GDAL on a docker image:
 
 To build:
 
@@ -81,5 +80,3 @@ To build:
 Drop in to a bash session:
 
 	$ docker run --rm -it -v ./:/home/fit_changedetector fit_changedetector  bash
-
-Note that Python 3.9 is not available via the [gdal ubuntu docker images](https://github.com/OSGeo/gdal/tree/master/docker#small-ghcrioosgeogdalubuntu-small-latest), testing against 3.10 should be fine for purposes of this tool.
