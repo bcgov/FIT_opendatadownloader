@@ -21,9 +21,7 @@
             "DGRoute",
             "SpeedLimit"
         ],
-        "schedule": "Q",
         "primary_key": ["AssetID"],
+        "schedule": "Q"
     }
 ]
-
-

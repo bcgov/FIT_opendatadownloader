@@ -29,7 +29,7 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - id: set-matrix
       run: |
         DATA=$(find "sources" -type f -name "*.json" | jq -R -s -c 'split("\n")[:-1]')
