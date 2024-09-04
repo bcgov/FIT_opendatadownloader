@@ -15,16 +15,19 @@ env:
 jobs:
   get-matrix:
     runs-on: ubuntu-latest
-    container: ghcr.io/bcgov/ce_integratedroads:main
+    container: ghcr.io/bcgov/fit_changedetector:main
     environment: production
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-    - uses: actions/checkout@v4
-    - id: set-matrix
-      run: |
-        DATA=$(changedetector list-configs -s A | jq -R -s -c 'split("\n")[:-1]')
-        echo "matrix=$DATA" >> $GITHUB_OUTPUT
+      - uses: actions/checkout@v4
+      - name: Install tool
+        run: |
+          python -m pip install .
+      - id: set-matrix
+        run: |
+          DATA=$(changedetector list-configs -s A | jq -R -s -c 'split("\n")[:-1]')
+          echo "matrix=$DATA" >> $GITHUB_OUTPUT
   process:
     runs-on: ubuntu-latest
     container: ghcr.io/bcgov/fit_changedetector:main
@@ -35,7 +38,7 @@ jobs:
       matrix:
         arg: ${{fromJson(needs.get-matrix.outputs.matrix)}}
     env:
-      DEBIAN_FRONTEND: noninteractive
+        DEBIAN_FRONTEND: noninteractive
     steps:
       - uses: actions/checkout@v4
       - name: Install tool
@@ -43,4 +46,4 @@ jobs:
           python -m pip install .
       - name: Process source
         run: |
-          changedetector --out-path s3://$BUCKET/Change_Detection/${{ matrix.arg }} -s A ${{ matrix.arg }}.json
+          changedetector process --out-path s3://$BUCKET/Change_Detection/${{ matrix.arg }} -s A sources/${{ matrix.arg }}.json

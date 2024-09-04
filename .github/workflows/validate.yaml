@@ -24,7 +24,7 @@ env:
 jobs:
   get-matrix:
     runs-on: ubuntu-latest
-    container: ghcr.io/bcgov/ce_integratedroads:main
+    container: ghcr.io/bcgov/fit_changedetector:main
     environment: production
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
