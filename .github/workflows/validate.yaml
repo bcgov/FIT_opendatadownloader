@@ -53,6 +53,6 @@ jobs:
       - name: Install tool
         run: |
           python -m pip install .
-      - name: Validate all sources
+      - name: Validate source
         run: |
           changedetector process -Vv sources/${{ matrix.arg }}.json
