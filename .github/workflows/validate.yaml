@@ -43,8 +43,9 @@ jobs:
     environment: production
     needs: get-matrix
     strategy:
-        matrix:
-          arg: ${{fromJson(needs.get-matrix.outputs.matrix)}}
+      fail-fast: false
+      matrix:
+        arg: ${{fromJson(needs.get-matrix.outputs.matrix)}}
     env:
         DEBIAN_FRONTEND: noninteractive
     steps:
@@ -54,4 +55,4 @@ jobs:
           python -m pip install .
       - name: Validate all sources
         run: |
-          changedetector -Vv sources/${{ matrix.arg }}.json
+          changedetector process -Vv sources/${{ matrix.arg }}.json
