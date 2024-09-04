@@ -1,4 +1,5 @@
 import logging
+import glob
 import json
 import os
 from pathlib import Path
@@ -46,7 +47,45 @@ def zip_gdb(folder_path, zip_path):
                 zipf.write(file_path, relative_path)
 
 
-@click.command()
+@click.group()
+@click.version_option(version=fcd.__version__, message="%(version)s")
+def cli():
+    pass
+
+
+@cli.command()
+@click.option(
+    "--path",
+    "-p",
+    default="sources",
+    type=click.Path(exists=True)
+)
+@click.option(
+    "--schedule",
+    "-s",
+    type=click.Choice(["D", "W", "M", "Q", "A"], case_sensitive=False),
+    help="Process only sources with given schedule tag.",
+)
+@verbose_opt
+@quiet_opt
+def list_configs(path, schedule, verbose, quiet):
+    """List RD/muni component of all config files present in specified folder"""
+    configure_logging((verbose - quiet))
+    files = glob.glob(os.path.join(path, '**/*.json'), recursive=True)
+    for config_file in files:
+        # parse schedule if specified
+        if schedule:
+            with open(config_file, "r") as f:
+                config = json.load(f)
+            sources = [s for s in config if s["schedule"] == schedule]
+            if len(sources) > 0:
+                click.echo(os.path.splitext(Path(config_file).relative_to("sources"))[0])
+        # otherwise just dump all file names
+        else:
+            click.echo(os.path.splitext(Path(config_file).relative_to("sources"))[0])
+
+
+@cli.command()
 @click.argument("config_file", type=click.Path(exists=True))
 @click.option(
     "--layer",
