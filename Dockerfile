@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y software-properties-common
 
 RUN apt-get update && \
     apt-get -qq install -y --no-install-recommends g++ && \
+    apt-get -qq install -y --no-install-recommends jq && \
     apt-get -qq install -y --no-install-recommends python3-pip && \
     apt-get -qq install -y --no-install-recommends python3-dev && \
     apt-get -qq install -y --no-install-recommends python3-venv && \
