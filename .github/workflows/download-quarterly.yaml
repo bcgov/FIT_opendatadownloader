@@ -46,4 +46,4 @@ jobs:
           python -m pip install .
       - name: Process source
         run: |
-          changedetector process --out-path s3://$BUCKET/Change_Detection/${{ matrix.arg }} -s Q ${{ matrix.arg }}.json
+          changedetector process --out-path s3://$BUCKET/Change_Detection/${{ matrix.arg }} -s Q sources/${{ matrix.arg }}.json
