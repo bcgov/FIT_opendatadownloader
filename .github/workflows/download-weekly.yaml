@@ -33,6 +33,7 @@ jobs:
     container: ghcr.io/bcgov/fit_changedetector:main
     environment: production
     needs: get-matrix
+    if: ${{ needs.get-matrix.outputs.matrix != '[]' && needs.get-matrix.outputs.matrix != '' }}
     strategy:
       fail-fast: false
       matrix:
