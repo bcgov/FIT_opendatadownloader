@@ -1,0 +1,17 @@
+[
+  {
+    "out_layer": "parks",
+    "source": "https://maps.crd.bc.ca/Media/Data/rpk_ParksCRD.gdb.zip",
+    "source_layer": "parks",
+    "protocol": "http",
+    "fields": [
+      "Name",
+      "Type",
+      "SHAPE_Area"
+    ],
+    "primary_key": [
+      "Name"
+    ],
+    "schedule": "Q"
+  }
+]
