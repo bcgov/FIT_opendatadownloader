@@ -53,10 +53,10 @@ def test_config_esri():
                 "RT_Addr",
                 "SubType_TEXT",
                 "DGRoute",
-                "SpeedLimit"
+                "SpeedLimit",
             ],
             "primary_key": ["AssetID"],
-            "schedule": "Q"
+            "schedule": "Q",
         }
     ]
 
@@ -73,10 +73,11 @@ def test_download_file(test_config_file, tmpdir):
     assert len(df) > 0
 
 
-#def test_download_esri(test_config_esri, tmpdir):
+# def test_download_esri(test_config_esri, tmpdir):
 #    source = fcd.parse_config(test_config_esri)[0]
 #    df = fcd.download(source)
 #    assert len(df) > 0
+
 
 def test_download_bcgw(tmpdir):
     sources = [
@@ -92,7 +93,7 @@ def test_download_bcgw(tmpdir):
             ],
             "query": "SOURCE_DATA_ID in (456, 457, 458)",
             "primary_key": ["SOURCE_DATA_ID"],
-            "schedule": "Q"
+            "schedule": "Q",
         }
     ]
     source = fcd.parse_config(sources)[0]
@@ -138,7 +139,7 @@ def test_clean_columns(test_config_file):
                 "LOCALITY",
             ],
             "primary_key": ["SOURCE_DATA_ID"],
-            "schedule": "Q"
+            "schedule": "Q",
         }
     ]
     source = fcd.parse_config(sources)[0]
@@ -164,9 +165,12 @@ def test_hash_pk(test_config_file):
                 "LOCALITY",
             ],
             "primary_key": ["SOURCE_DATA_ID"],
-            "schedule": "Q"
+            "schedule": "Q",
         }
     ]
     source = fcd.parse_config(sources)[0]
     df = fcd.download(source)
-    assert df["fcd_load_id"].iloc[0] == "b3a8e0e1f9ab1bfe3a36f231f676f78bb30a519d2b21e6c530c0eee8ebb4a5d0"
+    assert (
+        df["fcd_load_id"].iloc[0]
+        == "b3a8e0e1f9ab1bfe3a36f231f676f78bb30a519d2b21e6c530c0eee8ebb4a5d0"
+    )
