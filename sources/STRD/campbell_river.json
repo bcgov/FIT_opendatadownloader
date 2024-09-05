@@ -1,0 +1,15 @@
+[
+         {
+            "out_layer": "parks",
+            "source": "https://gisportal.campbellriver.ca/arcgis/rest/services/Downloadable_CampbellRiver_Parks/FeatureServer/0",
+            "source_layer": "PARKS",
+            "protocol": "esri",
+            "fields": [
+                "Park_Name",
+                "Jurisdic"
+
+            ],
+            "primary_key": ["Park_Name"],
+            "schedule": "Q"
+        }
+]

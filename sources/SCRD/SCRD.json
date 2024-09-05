@@ -1,0 +1,31 @@
+[
+    {
+        "out_layer": "roads",
+        "source": "https://maps.scrd.ca/arcgis/rest/services/OpenData/Transportation_Roads/MapServer/0",
+        "protocol": "esri",
+        "fields": [
+            "STREETNAME",
+            "RD_CLASS",
+	    "RD_SURFACE",
+	    "SHAPE.STLength()"
+
+        ],
+        "schedule": "Q",
+        "primary_key": ["STREETNAME", "SHAPE.STLength()"],
+    },
+
+         {
+            "out_layer": "parks",
+            "source": "https://maps.scrd.ca/arcgis/rest/services/OpenData/Parks_TagGroup/MapServer/2",
+            "source_layer": "Parks",
+            "protocol": "esri",
+            "fields": [
+                "PARK_NAME",
+                "PRK_TYPE",
+                "SHAPE_STArea"
+
+            ],
+            "primary_key": ["NAME", "SHAPE_STArea"],
+            "schedule": "Q"
+        }
+]

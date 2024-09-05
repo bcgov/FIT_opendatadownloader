@@ -1,0 +1,39 @@
+[
+    {
+        "out_layer": "roads",
+        "source": "https://maps.kamloops.ca/arcgis/rest/services/OpenData/OpenDataPlanimetric/MapServer/28",
+        "protocol": "esri",
+        "fields": [
+            "FACILITYID",
+            "STREETNAME",
+            "ALTERNATENAME",
+	    "RANGETYPE",
+	    "BEGINLEFT",
+	    "BEGINRIGHT",
+	    "ENDLEFT",
+	    "ENDRIGHT",
+	    "TRAFFICDIRECTION",
+	    "ASSETSTATUS"
+
+        ],
+        "schedule": "Q",
+        "primary_key": ["FACILITYID"],
+    },
+
+         {
+            "out_layer": "parks",
+            "source": "https://mydata-kamloops.opendata.arcgis.com/documents/ecd36ad4452b4fa8b29bd04f31e20f87",
+            "source_layer": "Parks",
+            "protocol": "http",
+            "fields": [
+                "Name",
+                "Size",
+                "Address",
+                "Class",
+                "SHAPE.STArea()"
+
+            ],
+            "primary_key": ["Name", "Size"],
+            "schedule": "Q"
+        }
+]
