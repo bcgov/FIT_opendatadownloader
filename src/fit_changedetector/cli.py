@@ -54,12 +54,7 @@ def cli():
 
 
 @cli.command()
-@click.option(
-    "--path",
-    "-p",
-    default="sources",
-    type=click.Path(exists=True)
-)
+@click.option("--path", "-p", default="sources", type=click.Path(exists=True))
 @click.option(
     "--schedule",
     "-s",
@@ -71,7 +66,7 @@ def cli():
 def list_configs(path, schedule, verbose, quiet):
     """List RD/muni component of all config files present in specified folder"""
     configure_logging((verbose - quiet))
-    files = glob.glob(os.path.join(path, '**/*.json'), recursive=True)
+    files = glob.glob(os.path.join(path, "**/*.json"), recursive=True)
     for config_file in files:
         # parse schedule if specified
         if schedule:
@@ -79,7 +74,9 @@ def list_configs(path, schedule, verbose, quiet):
                 config = json.load(f)
             sources = [s for s in config if s["schedule"] == schedule]
             if len(sources) > 0:
-                click.echo(os.path.splitext(Path(config_file).relative_to("sources"))[0])
+                click.echo(
+                    os.path.splitext(Path(config_file).relative_to("sources"))[0]
+                )
         # otherwise just dump all file names
         else:
             click.echo(os.path.splitext(Path(config_file).relative_to("sources"))[0])
@@ -154,12 +151,10 @@ def process(
 
     # process all layers defined in source config
     for layer in sources:
-
         # download data, do some tidying/standardization
         df = fcd.download(layer)
 
         if not validate:
-
             # write to gdb in cwd
             out_file = layer["out_layer"] + ".gdb"
             df.to_file(out_file, driver="OpenFileGDB", layer=layer["out_layer"])
@@ -205,5 +200,5 @@ def process(
             shutil.rmtree(out_file)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     process()

@@ -130,11 +130,22 @@ def download(source):
         )
         load_id_column = "__" + load_id_column + "__"
 
-    df[load_id_column] = df[hashcols].apply(
-        lambda x: hashlib.sha256(
-            "|".join(x.astype(str).fillna("NULL").values).encode("utf-8")
-        ).hexdigest(),
-        axis=1,
-    )
-
+    # add truncated sha1 hash as synthetic primary key
+    # default to truncating at 8 characters but check for conflicts and bump up length if required
+    # Note that this adds some complexity when joining datasets - check that lengths of hashed load id
+    # match, and if they do not, compare on the shorter length - anything that doesn't match is therefore a new record anyway
+    # (probably simpler to just use a 10-15 char and presume no collisions occur?)
+    hash_len = 8
+    hash_len = 8
+    uniq = True
+    while uniq is False:
+        hashed = df[hashcols].apply(
+            lambda x: hashlib.sha1(
+                "|".join(x.astype(str).fillna("NULL").values).encode("utf-8")
+            ).hexdigest()[hash_len],
+            axis=1,
+        )
+        if len(hashed.unique()) > len(hashed):
+            uniq = False
+    df[load_id_column] = hashed
     return df
