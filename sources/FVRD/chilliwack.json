@@ -1,31 +1,33 @@
 [
-    {
-        "out_layer": "roads",
-        "source": "https://opendata.chilliwack.com/GDB/Roads_GDB.zip",
-        "protocol": "http",
-        "fields": [
-            "ROADNAME",
-            "ROADTYPE",
-	    "SURFACETYPE",
-	    "DIRECTION",
-	    "AssetID"
-
-        ],
-        "schedule": "Q",
-        "primary_key": ["GID"],
-    },
-
-         {
-            "out_layer": "parks",
-            "source": "https://opendata.chilliwack.com/GDB/Parks_GDB.zip",
-            "source_layer": "Parks",
-            "protocol": "http",
-            "fields": [
-                "NAME",
-                "SHAPE_Area"
-
-            ],
-            "primary_key": ["NAME", "SHAPE_Area"],
-            "schedule": "Q"
-        }
+  {
+    "out_layer": "roads",
+    "source": "https://opendata.chilliwack.com/GDB/Roads_GDB.zip",
+    "protocol": "http",
+    "fields": [
+      "ROADNAME",
+      "ROADTYPE",
+      "SURFACETYPE",
+      "DIRECTION",
+      "AssetID"
+    ],
+    "schedule": "Q",
+    "primary_key": [
+      "GID"
+    ]
+  },
+  {
+    "out_layer": "parks",
+    "source": "https://opendata.chilliwack.com/GDB/Parks_GDB.zip",
+    "source_layer": "Parks",
+    "protocol": "http",
+    "fields": [
+      "NAME",
+      "SHAPE_Area"
+    ],
+    "primary_key": [
+      "NAME",
+      "SHAPE_Area"
+    ],
+    "schedule": "Q"
+  }
 ]

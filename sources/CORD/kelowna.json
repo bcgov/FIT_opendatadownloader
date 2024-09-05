@@ -1,38 +1,41 @@
 [
-    {
-        "out_layer": "roads",
-        "source": "https://geo.kelowna.ca/arcgis/rest/services/OpenData/MapServer/5",
-        "protocol": "esri",
-        "fields": [
-            "road_id",
-            "status",
-	    "roadmst_name",
-	    "road_class",
-	    "high_address",
-	    "low_address",
-	    "address_range",
-	    "odd_side",
-	    "SHAPE.STLength()"
-
-        ],
-        "schedule": "Q",
-        "primary_key": ["STREETNAME", "SHAPE.STLength()"],
-    },
-
-         {
-            "out_layer": "parks",
-            "source": "https://geo.kelowna.ca/arcgis/rest/services/OpenData/MapServer/22",
-            "source_layer": "Parks",
-            "protocol": "esri",
-            "fields": [
-                "Name",
-                "Size",
-                "Address",
-                "Class",
-                "SHAPE.STArea()"
-
-            ],
-            "primary_key": ["Name", "Size"],
-            "schedule": "Q"
-        }
+  {
+    "out_layer": "roads",
+    "source": "https://geo.kelowna.ca/arcgis/rest/services/OpenData/MapServer/5",
+    "protocol": "esri",
+    "fields": [
+      "road_id",
+      "status",
+      "roadmst_name",
+      "road_class",
+      "high_address",
+      "low_address",
+      "address_range",
+      "odd_side",
+      "SHAPE.STLength()"
+    ],
+    "schedule": "Q",
+    "primary_key": [
+      "STREETNAME",
+      "SHAPE.STLength()"
+    ]
+  },
+  {
+    "out_layer": "parks",
+    "source": "https://geo.kelowna.ca/arcgis/rest/services/OpenData/MapServer/22",
+    "source_layer": "Parks",
+    "protocol": "esri",
+    "fields": [
+      "Name",
+      "Size",
+      "Address",
+      "Class",
+      "SHAPE.STArea()"
+    ],
+    "primary_key": [
+      "Name",
+      "Size"
+    ],
+    "schedule": "Q"
+  }
 ]

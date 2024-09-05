@@ -1,35 +1,37 @@
 [
-         {
-            "out_layer": "parks",
-            "source": "https://services3.arcgis.com/PwS5hVLYsEN2U36s/arcgis/rest/services/Parks/FeatureServer/1",
-            "source_layer": "parks",
-            "protocol": "esri",
-            "fields": [
-                "Park_Name",
-                "Park_Use",
-                "Type_text",
-                "Location",
-                "acres"
-
-
-            ],
-            "primary_key": ["Park_Name", "acres"],
-            "schedule": "Q"
-        },
-
-    {
-        "out_layer": "roads",
-        "source": "https://services3.arcgis.com/PwS5hVLYsEN2U36s/ArcGIS/rest/services/RoadCentrelines/FeatureServer/0",
-        "protocol": "esri",
-        "fields": [
-           "FACILITYID",
-	   "Street_Name",
-	   "From_Street",
-	   "To_Street",
-	   "Agency_Functional_Class",
-           "TruckRoute"
-        ],
-        "schedule": "Q",
-        "primary_key": ["FACILITYID"],
-    }
+  {
+    "out_layer": "parks",
+    "source": "https://services3.arcgis.com/PwS5hVLYsEN2U36s/arcgis/rest/services/Parks/FeatureServer/1",
+    "source_layer": "parks",
+    "protocol": "esri",
+    "fields": [
+      "Park_Name",
+      "Park_Use",
+      "Type_text",
+      "Location",
+      "acres"
+    ],
+    "primary_key": [
+      "Park_Name",
+      "acres"
+    ],
+    "schedule": "Q"
+  },
+  {
+    "out_layer": "roads",
+    "source": "https://services3.arcgis.com/PwS5hVLYsEN2U36s/ArcGIS/rest/services/RoadCentrelines/FeatureServer/0",
+    "protocol": "esri",
+    "fields": [
+      "FACILITYID",
+      "Street_Name",
+      "From_Street",
+      "To_Street",
+      "Agency_Functional_Class",
+      "TruckRoute"
+    ],
+    "schedule": "Q",
+    "primary_key": [
+      "FACILITYID"
+    ]
+  }
 ]

@@ -1,37 +1,38 @@
 [
-         {
-            "out_layer": "parks",
-            "source": "https://maps.victoria.ca/server/rest/services/OpenData/OpenData_Parks/MapServer/50",
-            "source_layer": "parks",
-            "protocol": "esri",
-            "fields": [
-                "Park_Name",
-                "ParkClassCode",
-                "SHAPE_Area"
-
-            ],
-            "primary_key": ["Park_Name"],
-            "schedule": "Q"
-        },
-
-    {
-        "out_layer": "roads",
-        "source": "https://maps.victoria.ca/server/rest/services/OpenData/OpenData_Transportation/MapServer/25",
-        "protocol": "esri",
-        "fields": [
-            "AddrType_L",
-            "AddrType_R",
-	    "Class",
-	    "From_Left",
-	    "From_Right",
-	    "ToLeft",
-	    "ToRight",
-	    "StreetName",
-	    "AliasName",
-	    "StreetSegmentID"
-
-        ],
-        "schedule": "Q",
-        "primary_key": ["StreetSegmentID"],
-    }
+  {
+    "out_layer": "parks",
+    "source": "https://maps.victoria.ca/server/rest/services/OpenData/OpenData_Parks/MapServer/50",
+    "source_layer": "parks",
+    "protocol": "esri",
+    "fields": [
+      "Park_Name",
+      "ParkClassCode",
+      "SHAPE_Area"
+    ],
+    "primary_key": [
+      "Park_Name"
+    ],
+    "schedule": "Q"
+  },
+  {
+    "out_layer": "roads",
+    "source": "https://maps.victoria.ca/server/rest/services/OpenData/OpenData_Transportation/MapServer/25",
+    "protocol": "esri",
+    "fields": [
+      "AddrType_L",
+      "AddrType_R",
+      "Class",
+      "From_Left",
+      "From_Right",
+      "ToLeft",
+      "ToRight",
+      "StreetName",
+      "AliasName",
+      "StreetSegmentID"
+    ],
+    "schedule": "Q",
+    "primary_key": [
+      "StreetSegmentID"
+    ]
+  }
 ]

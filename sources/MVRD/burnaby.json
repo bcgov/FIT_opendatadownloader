@@ -1,35 +1,37 @@
 [
-    {
-        "out_layer": "roads",
-        "source": "https://gis.burnaby.ca/arcgis/rest/services/OpenData/OpenData5/MapServer/8",
-        "protocol": "esri",
-        "fields": [
-            "COMPKEY",
-            "UNITID",
-            "HIADDRESS",
-	    "LOADDRESS",
-	    "STREETNAMEC",
-	    "TRUCKROUTE"
-
-        ],
-        "schedule": "Q",
-        "primary_key": ["COMPKEY"],
-    },
-
-         {
-            "out_layer": "parks",
-            "source": "https://gis.burnaby.ca/arcgis/rest/services/OpenData/OpenData1/MapServer/6",
-            "source_layer": "Parks",
-            "protocol": "http",
-            "fields": [
-                "NAME",
-                "CLASSIFICATION",
-                "OWNERSHIP",
-                "PARK_STATUS",
-                "SHAPE_Area"
-
-            ],
-            "primary_key": ["NAME", "SHAPE_Area"],
-            "schedule": "Q"
-        }
+  {
+    "out_layer": "roads",
+    "source": "https://gis.burnaby.ca/arcgis/rest/services/OpenData/OpenData5/MapServer/8",
+    "protocol": "esri",
+    "fields": [
+      "COMPKEY",
+      "UNITID",
+      "HIADDRESS",
+      "LOADDRESS",
+      "STREETNAMEC",
+      "TRUCKROUTE"
+    ],
+    "schedule": "Q",
+    "primary_key": [
+      "COMPKEY"
+    ]
+  },
+  {
+    "out_layer": "parks",
+    "source": "https://gis.burnaby.ca/arcgis/rest/services/OpenData/OpenData1/MapServer/6",
+    "source_layer": "Parks",
+    "protocol": "http",
+    "fields": [
+      "NAME",
+      "CLASSIFICATION",
+      "OWNERSHIP",
+      "PARK_STATUS",
+      "SHAPE_Area"
+    ],
+    "primary_key": [
+      "NAME",
+      "SHAPE_Area"
+    ],
+    "schedule": "Q"
+  }
 ]

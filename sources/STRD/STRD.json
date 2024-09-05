@@ -1,17 +1,19 @@
 [
-         {
-            "out_layer": "parks",
-            "source": "https://services1.arcgis.com/Uj11SaUIGBo5JYFY/arcgis/rest/services/ParkBeachAccess/FeatureServer/1",
-            "source_layer": "PARKS",
-            "protocol": "esri",
-            "fields": [
-                "PARK",
-                "STATUS",
-                "TENURE",
-                "Shape_Area"
-
-            ],
-            "primary_key": ["PARK", "TENURE"],
-            "schedule": "Q"
-        }
+  {
+    "out_layer": "parks",
+    "source": "https://services1.arcgis.com/Uj11SaUIGBo5JYFY/arcgis/rest/services/ParkBeachAccess/FeatureServer/1",
+    "source_layer": "PARKS",
+    "protocol": "esri",
+    "fields": [
+      "PARK",
+      "STATUS",
+      "TENURE",
+      "Shape_Area"
+    ],
+    "primary_key": [
+      "PARK",
+      "TENURE"
+    ],
+    "schedule": "Q"
+  }
 ]
