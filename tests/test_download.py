@@ -170,7 +170,4 @@ def test_hash_pk(test_config_file):
     ]
     source = fcd.parse_config(sources)[0]
     df = fcd.download(source)
-    assert (
-        df["fcd_load_id"].iloc[0]
-        == "b3a8e0e1f9ab1bfe3a36f231f676f78bb30a519d2b21e6c530c0eee8ebb4a5d0"
-    )
+    assert df["fcd_load_id"].iloc[0] == "51eac6b471a28"
