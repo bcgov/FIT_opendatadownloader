@@ -4,6 +4,7 @@
     "source": "https://opendata.chilliwack.com/GDB/Roads_GDB.zip",
     "protocol": "http",
     "fields": [
+      "GID",
       "ROADNAME",
       "ROADTYPE",
       "SURFACETYPE",
@@ -21,12 +22,7 @@
     "source_layer": "Parks",
     "protocol": "http",
     "fields": [
-      "NAME",
-      "SHAPE_Area"
-    ],
-    "primary_key": [
-      "NAME",
-      "SHAPE_Area"
+      "NAME"
     ],
     "schedule": "Q"
   }

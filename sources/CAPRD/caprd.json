@@ -5,10 +5,6 @@
     "source_layer": "rpk_ParksCRD",
     "protocol": "http",
     "fields": [
-      "Name",
-      "Type"
-    ],
-    "primary_key": [
       "Name"
     ],
     "schedule": "Q"
