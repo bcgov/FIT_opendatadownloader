@@ -72,14 +72,16 @@ class SourceLayer:
             ]
 
     def clean(self):
-        """standardize the data
-        - BC Albers
-        - point/line/poly only
-        - if multipart are found, ensure all features are multipart
-        - lowercase/clean column names
-        - only include fields listed in config
-        - validate pk if provided
-        - generate a pk if none provided
+        """
+        After downloading, standardize the data extracted from the source:
+
+        - geometries are BC Albers
+        - geometries are of supported spatial type
+        - if multipart geometries are present, ensure *all* geometries are multipart
+        - clean field names (lowercase, no special characters or spaces)
+        - remove any fields not included in config fields key
+        - if primary key is provided, validate it is unique
+        - if primary is not provided, generate a synthetic pk from fields and geometry
         """
         # reproject to BC Albers if necessary
         if self.df.crs != CRS.from_user_input(3005):
@@ -137,11 +139,7 @@ class SourceLayer:
         self.df[load_id_column] = hashed
 
     def download(self):
-        """
-        Download layer, do some simple validation and standardization
-
-        :return: BC Albers GeoDataframe, with desired columns in lowercase
-        """
+        """Download source to GeoDataFrame self.df and do some basic validation"""
 
         # download data from esri rest api endpoint
         if self.protocol == "esri":
