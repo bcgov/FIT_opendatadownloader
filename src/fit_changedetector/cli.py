@@ -130,31 +130,33 @@ def process(
     configure_logging((verbose - quiet))
 
     # parse config, returning a list of dicts defining layers to process
-    sources = fcd.parse_config(config_file)
+    layers = fcd.parse_config(config_file)
 
     # if specified, download only specified layer
     if layer:
-        config = [s for s in sources if s["layer"] == layer]
-        # alert if no sources match this schedule
-        if len(sources) == 0:
-            LOG.warning(f"No layer named {layer} found in {config}")
+        layers = [s for s in layers if s.out_layer == layer]
+        if len(layers) == 0:
+            LOG.warning(f"No layer named {layer} found in {config_file}")
 
-    # if specified, use only sources with given schedule tag
+    # if specified, use only layers with given schedule tag
     if schedule:
-        sources = [s for s in sources if s["schedule"] == schedule]
-        # alert if no sources match this schedule
-        if len(sources) == 0:
-            LOG.warning(f"No source with schedule={schedule} found in {config}")
+        layers = [s for s in layers if s.schedule == schedule]
+        # alert if no layers in config match this schedule
+        if len(layers) == 0:
+            LOG.warning(f"No source with schedule={schedule} found in {config_file}")
 
     # process all layers defined in source config
-    for layer in sources:
-        # download data, do some tidying/standardization
-        df = fcd.download(layer)
+    for layer in layers:
+        # download from source
+        layer.download()
 
+        # if not just validating the source, process and dump to file
         if not validate:
+            layer.clean()
+
             # write to gdb in cwd
-            out_file = layer["out_layer"] + ".gdb"
-            df.to_file(out_file, driver="OpenFileGDB", layer=layer["out_layer"])
+            out_file = layer.out_layer + ".gdb"
+            layer.df.to_file(out_file, driver="OpenFileGDB", layer=layer.out_layer)
 
             # run change detection unless otherwise specified
             # if not force:

@@ -63,14 +63,14 @@ def test_config_esri():
 
 # parsing does not fail so config is valid
 def test_parse_config(test_config_file):
-    source = fcd.parse_config(test_config_file)[0]
-    assert source["out_layer"] == "parks"
+    layer = fcd.parse_config(test_config_file)[0]
+    assert layer.out_layer == "parks"
 
 
 def test_download_file(test_config_file, tmpdir):
-    source = fcd.parse_config(test_config_file)[0]
-    df = fcd.download(source)
-    assert len(df) > 0
+    layer = fcd.parse_config(test_config_file)[0]
+    layer.download()
+    assert len(layer.df) > 0
 
 
 # def test_download_esri(test_config_esri, tmpdir):
@@ -96,15 +96,16 @@ def test_download_bcgw(tmpdir):
             "schedule": "Q",
         }
     ]
-    source = fcd.parse_config(sources)[0]
-    assert len(fcd.download(source)) == 3
+    layer = fcd.parse_config(sources)[0]
+    layer.download()
+    assert len(layer.df) == 3
 
 
 def test_invalid_file(test_config_file):
-    source = fcd.parse_config(test_config_file)[0]
-    source["fields"] = ["INVALID_COLUMN"]
+    layer = fcd.parse_config(test_config_file)[0]
+    layer.fields = ["INVALID_COLUMN"]
     with pytest.raises(ValueError):
-        fcd.download(source)
+        layer.download()
 
 
 def test_invalid_pk(test_config_file):
@@ -142,9 +143,10 @@ def test_clean_columns():
             "schedule": "Q",
         }
     ]
-    source = fcd.parse_config(sources)[0]
-    df = fcd.download(source)
-    assert "airport_name_" in df.columns
+    layer = fcd.parse_config(sources)[0]
+    layer.download()
+    layer.clean()
+    assert "airport_name_" in layer.df.columns
 
 
 def test_hash_pk():
@@ -168,9 +170,10 @@ def test_hash_pk():
             "schedule": "Q",
         }
     ]
-    source = fcd.parse_config(sources)[0]
-    df = fcd.download(source)
-    assert df["fcd_load_id"].iloc[0] == "51eac6b471a28"
+    layer = fcd.parse_config(sources)[0]
+    layer.download()
+    layer.clean()
+    assert layer.df["fcd_load_id"].iloc[0] == "51eac6b471a28"
 
 
 def test_mixed_types():
@@ -185,9 +188,10 @@ def test_mixed_types():
             "schedule": "Q",
         }
     ]
-    source = fcd.parse_config(sources)[0]
-    df = fcd.download(source)
-    assert [t.upper() for t in df["geom"].geom_type.unique()] == ["MULTIPOINT"]
+    layer = fcd.parse_config(sources)[0]
+    layer.download()
+    layer.clean()
+    assert [t.upper() for t in layer.df["geom"].geom_type.unique()] == ["MULTIPOINT"]
 
 
 def duplicate_pk():
@@ -205,6 +209,7 @@ def duplicate_pk():
             "schedule": "Q",
         }
     ]
-    source = fcd.parse_config(sources)[0]
+    layer = fcd.parse_config(sources)[0]
     with pytest.raises(ValueError):
-        fcd.download(source)
+        layer.download()
+        layer.clean()
