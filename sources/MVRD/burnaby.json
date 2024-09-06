@@ -20,17 +20,12 @@
     "out_layer": "parks",
     "source": "https://gis.burnaby.ca/arcgis/rest/services/OpenData/OpenData1/MapServer/6",
     "source_layer": "Parks",
-    "protocol": "http",
+    "protocol": "esri",
     "fields": [
       "NAME",
       "CLASSIFICATION",
       "OWNERSHIP",
-      "PARK_STATUS",
-      "SHAPE_Area"
-    ],
-    "primary_key": [
-      "NAME",
-      "SHAPE_Area"
+      "PARK_STATUS"
     ],
     "schedule": "Q"
   }
