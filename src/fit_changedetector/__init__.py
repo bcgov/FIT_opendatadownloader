@@ -8,6 +8,15 @@ __version__ = "0.0.1a1"
 
 LOG = logging.getLogger(__name__)
 
+supported_spatial_types = [
+    "POINT",
+    "LINESTRING",
+    "POLYGON",
+    "MULTIPOINT",
+    "MULTILINESTRING",
+    "MULTIPOLYGON",
+]
+
 
 def parse_config(config_file):
     """validate and parse supplied config file"""

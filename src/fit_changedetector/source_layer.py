@@ -16,6 +16,7 @@ from shapely.geometry.multipolygon import MultiPolygon
 from shapely.geometry.point import Point
 from shapely.geometry.polygon import Polygon
 
+import fit_changedetector as fcd
 
 LOG = logging.getLogger(__name__)
 
@@ -26,16 +27,6 @@ class SourceLayer:
         if layer_keys is not None:
             for key, value in layer_keys.items():
                 setattr(self, key, value)
-        self.supported_types = set(
-            [
-                "POINT",
-                "LINESTRING",
-                "POLYGON",
-                "MULTIPOINT",
-                "MULTILINESTRING",
-                "MULTIPOLYGON",
-            ]
-        )
 
     def download(self):
         """Download source to GeoDataFrame self.df and do some basic validation"""
@@ -160,7 +151,7 @@ class SourceLayer:
         """
         # ensure
         types = set([t.upper() for t in self.df.geometry.geom_type.unique()])
-        unsupported = types.difference(self.supported_types)
+        unsupported = types.difference(fcd.supported_spatial_types)
         if unsupported:
             raise ValueError(f"Geometries of type {unsupported} are not supported")
             # fail for now but maybe better would be to warn and remove all rows having this type?
