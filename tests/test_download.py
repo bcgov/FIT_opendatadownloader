@@ -188,3 +188,23 @@ def test_mixed_types():
     source = fcd.parse_config(sources)[0]
     df = fcd.download(source)
     assert [t.upper() for t in df["geom"].geom_type.unique()] == ["MULTIPOINT"]
+
+
+def duplicate_pk():
+    sources = [
+        {
+            "out_layer": "parks",
+            "source": "tests/data/dups.geojson",
+            "protocol": "http",
+            "fields": [
+                "SOURCE_DATA_ID",
+            ],
+            "primary_key": [
+                "SOURCE_DATA_ID",
+            ],
+            "schedule": "Q",
+        }
+    ]
+    source = fcd.parse_config(sources)[0]
+    with pytest.raises(ValueError):
+        fcd.download(source)

@@ -133,9 +133,8 @@ def download(source):
         )
 
     # are expected columns present?
-    columns = [x.lower() for x in df.columns]
     for column in source["fields"]:
-        if column and column.lower() not in columns:
+        if column and column.lower() not in [x.lower() for x in df.columns]:
             raise ValueError(
                 f"Download error: {source['out_layer']} - column {column} is not present, modify 'fields'"
             )
@@ -174,10 +173,17 @@ def download(source):
     # check and fix spatial types
     df = standardize_spatial_types(df)
 
-    # if primary key(s) provided, sort data by key(s)
+    # if primary key(s) provided, ensure unique and sort data by key(s)
     pks = None
     if source["primary_key"]:
+        # swap provided pk names to cleaned column names
         pks = [cleaned_column_map[k] for k in source["primary_key"]]
+        # are values unique?
+        if len(df) != len(df[pks].drop_duplicates()):
+            pk_string = ",".join(pks)
+            raise ValueError(
+                f"Duplicate values exist for primary_key {pk_string}, consider removing primary_key from config"
+            )
         df = df.sort_values(pks)
 
     # default to creating hash on all input fields, but if supplied use the pk(s)
