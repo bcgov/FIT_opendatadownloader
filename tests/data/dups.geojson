@@ -1,0 +1,44 @@
+{
+  "type": "FeatureCollection",
+  "name": "airports",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:EPSG::3005"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "source_data_id": 456,
+        "airport_name": "Victoria Harbour (Camel Point) Heliport",
+        "description": "heliport",
+        "locality": "Victoria"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1193726.6228300119,
+          381604.0698628168
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "source_data_id": 456,
+        "airport_name": "Victoria Inner Harbour Airport\u00a0(Victoria Harbour Water Airport)",
+        "description": "water aerodrome",
+        "locality": "Victoria"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1194901.506376263,
+          382257.74286498793
+        ]
+      }
+    }
+  ]
+}
