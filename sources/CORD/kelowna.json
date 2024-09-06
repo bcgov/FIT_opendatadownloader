@@ -11,14 +11,9 @@
       "high_address",
       "low_address",
       "address_range",
-      "odd_side",
-      "SHAPE.STLength()"
+      "odd_side"
     ],
-    "schedule": "Q",
-    "primary_key": [
-      "STREETNAME",
-      "SHAPE.STLength()"
-    ]
+    "schedule": "Q"
   },
   {
     "out_layer": "parks",
@@ -27,14 +22,8 @@
     "protocol": "esri",
     "fields": [
       "Name",
-      "Size",
       "Address",
-      "Class",
-      "SHAPE.STArea()"
-    ],
-    "primary_key": [
-      "Name",
-      "Size"
+      "Class"
     ],
     "schedule": "Q"
   }
