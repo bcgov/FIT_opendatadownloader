@@ -10,14 +10,31 @@ import geopandas
 from geopandas import GeoDataFrame
 import jsonschema
 from pyproj import CRS
+from shapely.geometry.linestring import LineString
+from shapely.geometry.multilinestring import MultiLineString
+from shapely.geometry.multipoint import MultiPoint
+from shapely.geometry.multipolygon import MultiPolygon
+from shapely.geometry.point import Point
+from shapely.geometry.polygon import Polygon
 
 
 LOG = logging.getLogger(__name__)
 
 
-def parse_config(config):
-    """validate and parse config list of dicts"""
+def parse_config(config_file):
+    """validate and parse supplied config file"""
 
+    # read config if a test string is provided
+    if type(config_file) is str:
+        with open(config_file, "r") as f:
+            config = json.load(f)
+    # for testing, accept json dict
+    elif type(config_file) is list:
+        config = config_file
+    else:
+        raise ValueError(
+            "config_file must be a path to a file or a list of dicts (sources)"
+        )
     # validate sources against schema doc
     with open("source_schema.json", "r") as f:
         schema = json.load(f)
@@ -40,6 +57,50 @@ def parse_config(config):
                 )
 
     return parsed
+
+
+def standardize_spatial_types(df):
+    """
+    introspect spatial types
+    - fail if multiple dimensions are found (ie point and poly)
+    - promote to multipart if any multipart feature is found
+    (drivers like .gdb do not support mixed-types)
+    """
+    types = set([t.upper() for t in df.geometry.geom_type.unique()])
+    # geopandas does not seem to have a st_dimension function,
+    # inspect the types with string comparison
+    valid_types = set(
+        [
+            "POINT",
+            "LINESTRING",
+            "POLYGON",
+            "MULTIPOINT",
+            "MULTILINESTRING",
+            "MULTIPOLYGON",
+        ]
+    )
+    if types.difference(valid_types):
+        raise ValueError(
+            f"Geometries of type {types.difference(valid_types)} are not supported"
+        )
+        # fail for now but maybe better would be to warn and remove all rows having this type?
+        # df = df[[df["geom"].geom_type != t]]
+    # promote geometries to multipart if any multipart features are found
+    if set(types).intersection(set(("MULTIPOINT", "MULTILINESTRING", "MULTIPOLYGON"))):
+        LOG.info("Promoting all features to multipart")
+        df["geom"] = [
+            MultiPoint([feature]) if isinstance(feature, Point) else feature
+            for feature in df["geom"]
+        ]
+        df["geom"] = [
+            MultiLineString([feature]) if isinstance(feature, LineString) else feature
+            for feature in df["geom"]
+        ]
+        df["geom"] = [
+            MultiPolygon([feature]) if isinstance(feature, Polygon) else feature
+            for feature in df["geom"]
+        ]
+    return df
 
 
 def download(source):
@@ -110,7 +171,11 @@ def download(source):
     # retain only columns noted in config and geom
     df = df[list(cleaned_column_map.values()) + ["geom"]]
 
+    # check and fix spatial types
+    df = standardize_spatial_types(df)
+
     # if primary key(s) provided, sort data by key(s)
+    pks = None
     if source["primary_key"]:
         pks = [cleaned_column_map[k] for k in source["primary_key"]]
         df = df.sort_values(pks)

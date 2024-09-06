@@ -121,7 +121,7 @@ def test_invalid_schedule(test_config_file):
         fcd.parse_config(sources)
 
 
-def test_clean_columns(test_config_file):
+def test_clean_columns():
     sources = [
         {
             "out_layer": "parks",
@@ -147,7 +147,7 @@ def test_clean_columns(test_config_file):
     assert "airport_name_" in df.columns
 
 
-def test_hash_pk(test_config_file):
+def test_hash_pk():
     sources = [
         {
             "out_layer": "parks",
@@ -171,3 +171,20 @@ def test_hash_pk(test_config_file):
     source = fcd.parse_config(sources)[0]
     df = fcd.download(source)
     assert df["fcd_load_id"].iloc[0] == "51eac6b471a28"
+
+
+def test_mixed_types():
+    sources = [
+        {
+            "out_layer": "parks",
+            "source": "tests/data/mixed_types.geojson",
+            "protocol": "http",
+            "fields": [
+                "SOURCE_DATA_ID",
+            ],
+            "schedule": "Q",
+        }
+    ]
+    source = fcd.parse_config(sources)[0]
+    df = fcd.download(source)
+    assert [t.upper() for t in df["geom"].geom_type.unique()] == ["MULTIPOINT"]

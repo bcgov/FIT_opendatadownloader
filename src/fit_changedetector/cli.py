@@ -129,15 +129,12 @@ def process(
     """For each configured layer - download latest, detect changes, write to file"""
     configure_logging((verbose - quiet))
 
-    with open(config_file, "r") as f:
-        config = json.load(f)
-
     # parse config, returning a list of dicts defining layers to process
-    sources = fcd.parse_config(config)
+    sources = fcd.parse_config(config_file)
 
     # if specified, download only specified layer
     if layer:
-        config = [s for s in config if s["layer"] == layer]
+        config = [s for s in sources if s["layer"] == layer]
         # alert if no sources match this schedule
         if len(sources) == 0:
             LOG.warning(f"No layer named {layer} found in {config}")
