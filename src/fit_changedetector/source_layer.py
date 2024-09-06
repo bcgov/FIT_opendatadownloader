@@ -37,39 +37,52 @@ class SourceLayer:
             ]
         )
 
-    def standardize_spatial_types(self):
-        """
-        Ensure geodataframe geometry is:
-        - of supported type
-        - set to mulitpart if any multipart features are found
-        """
-        # ensure
-        types = set([t.upper() for t in self.df.geometry.geom_type.unique()])
-        unsupported = types.difference(self.supported_types)
-        if unsupported:
-            raise ValueError(f"Geometries of type {unsupported} are not supported")
-            # fail for now but maybe better would be to warn and remove all rows having this type?
-            # df = df[[df["geom"].geom_type != t]]
+    def download(self):
+        """Download source to GeoDataFrame self.df and do some basic validation"""
 
-        # promote geometries to multipart if any multipart features are found
-        if set(types).intersection(
-            set(("MULTIPOINT", "MULTILINESTRING", "MULTIPOLYGON"))
-        ):
-            LOG.info("Promoting all features to multipart")
-            self.df["geom"] = [
-                MultiPoint([feature]) if isinstance(feature, Point) else feature
-                for feature in self.df["geom"]
-            ]
-            self.df["geom"] = [
-                MultiLineString([feature])
-                if isinstance(feature, LineString)
-                else feature
-                for feature in self.df["geom"]
-            ]
-            self.df["geom"] = [
-                MultiPolygon([feature]) if isinstance(feature, Polygon) else feature
-                for feature in self.df["geom"]
-            ]
+        # download data from esri rest api endpoint
+        if self.protocol == "esri":
+            self.df = GeoDataFrame.from_features(
+                features=(
+                    EsriDumper(self.source, fields=self.fields, parent_logger=LOG)
+                ),
+                crs=4326,
+            )
+
+        # download from BC WFS
+        elif self.protocol == "bcgw":
+            self.df = bcdata.get_data(self.source, query=self.query, as_gdf=True)
+
+        # download data from location readable by ogr
+        elif self.protocol == "http":
+            self.df = geopandas.read_file(
+                os.path.expandvars(self.source),
+                layer=self.source_layer,
+                where=self.query,
+            )
+
+        # are expected columns present?
+        for column in self.fields:
+            if column and column.lower() not in [x.lower() for x in self.df.columns]:
+                raise ValueError(
+                    f"Download error: {self.out_layer} - column {column} is not present, modify 'fields'"
+                )
+
+        # is there data?
+        count = len(self.df.index)
+        if count == 0:
+            raise ValueError(
+                f"Download error: {self.out_layer} - no data returned, check source and query"
+            )
+
+        # is a crs defined?
+        if not self.df.crs:
+            raise ValueError(
+                f"Download error: {self.out_layer} does not have a defined projection/coordinate reference system"
+            )
+
+        # presume layer is defined correctly if no errors are raised
+        LOG.info(f"Download successful: {self.out_layer} - record count: {str(count)}")
 
     def clean(self):
         """
@@ -129,7 +142,7 @@ class SourceLayer:
             )
             load_id_column = "__" + load_id_column + "__"
 
-        # add sha1 hash as synthetic primary key
+        # add truncated (14char) sha1 hash as synthetic primary key
         hashed = self.df[hashcols].apply(
             lambda x: hashlib.sha1(
                 "|".join(x.astype(str).fillna("NULL").values).encode("utf-8")
@@ -138,49 +151,36 @@ class SourceLayer:
         )
         self.df[load_id_column] = hashed
 
-    def download(self):
-        """Download source to GeoDataFrame self.df and do some basic validation"""
+    def standardize_spatial_types(self):
+        """
+        Ensure geodataframe geometry is:
+        - of supported type
+        - set to mulitpart if any multipart features are found
+        """
+        # ensure
+        types = set([t.upper() for t in self.df.geometry.geom_type.unique()])
+        unsupported = types.difference(self.supported_types)
+        if unsupported:
+            raise ValueError(f"Geometries of type {unsupported} are not supported")
+            # fail for now but maybe better would be to warn and remove all rows having this type?
+            # df = df[[df["geom"].geom_type != t]]
 
-        # download data from esri rest api endpoint
-        if self.protocol == "esri":
-            self.df = GeoDataFrame.from_features(
-                features=(
-                    EsriDumper(self.source, fields=self.fields, parent_logger=LOG)
-                ),
-                crs=4326,
-            )
-
-        # download from BC WFS
-        elif self.protocol == "bcgw":
-            self.df = bcdata.get_data(self.source, query=self.query, as_gdf=True)
-
-        # download data from location readable by ogr
-        elif self.protocol == "http":
-            self.df = geopandas.read_file(
-                os.path.expandvars(self.source),
-                layer=self.source_layer,
-                where=self.query,
-            )
-
-        # are expected columns present?
-        for column in self.fields:
-            if column and column.lower() not in [x.lower() for x in self.df.columns]:
-                raise ValueError(
-                    f"Download error: {self.out_layer} - column {column} is not present, modify 'fields'"
-                )
-
-        # is there data?
-        count = len(self.df.index)
-        if count == 0:
-            raise ValueError(
-                f"Download error: {self.out_layer} - no data returned, check source and query"
-            )
-
-        # is a crs defined?
-        if not self.df.crs:
-            raise ValueError(
-                f"Download error: {self.out_layer} does not have a defined projection/coordinate reference system"
-            )
-
-        # presume layer is defined correctly if no errors are raised
-        LOG.info(f"Download successful: {self.out_layer} - record count: {str(count)}")
+        # promote geometries to multipart if any multipart features are found
+        if set(types).intersection(
+            set(("MULTIPOINT", "MULTILINESTRING", "MULTIPOLYGON"))
+        ):
+            LOG.info("Promoting all features to multipart")
+            self.df["geom"] = [
+                MultiPoint([feature]) if isinstance(feature, Point) else feature
+                for feature in self.df["geom"]
+            ]
+            self.df["geom"] = [
+                MultiLineString([feature])
+                if isinstance(feature, LineString)
+                else feature
+                for feature in self.df["geom"]
+            ]
+            self.df["geom"] = [
+                MultiPolygon([feature]) if isinstance(feature, Polygon) else feature
+                for feature in self.df["geom"]
+            ]
