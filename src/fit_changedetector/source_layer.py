@@ -101,7 +101,8 @@ class SourceLayer:
             self.df = self.df.to_crs("EPSG:3005")
 
         # standardize column naming
-        self.df = self.df.rename_geometry("geom")
+        if self.df.geometry.name != "geometry":
+            self.df = self.df.rename_geometry("geometry")
         cleaned_column_map = {}
         for column in self.fields:
             cleaned_column_map[column] = re.sub(
@@ -109,7 +110,7 @@ class SourceLayer:
             )
         self.df = self.df.rename(columns=cleaned_column_map)
         # retain only columns noted in config and geom
-        self.df = self.df[list(cleaned_column_map.values()) + ["geom"]]
+        self.df = self.df[list(cleaned_column_map.values()) + ["geometry"]]
 
         # check and fix spatial types
         self.standardize_spatial_types()
@@ -163,24 +164,24 @@ class SourceLayer:
         if unsupported:
             raise ValueError(f"Geometries of type {unsupported} are not supported")
             # fail for now but maybe better would be to warn and remove all rows having this type?
-            # df = df[[df["geom"].geom_type != t]]
+            # df = df[[df["geometry"].geom_type != t]]
 
         # promote geometries to multipart if any multipart features are found
         if set(types).intersection(
             set(("MULTIPOINT", "MULTILINESTRING", "MULTIPOLYGON"))
         ):
             LOG.info("Promoting all features to multipart")
-            self.df["geom"] = [
+            self.df.geometry = [
                 MultiPoint([feature]) if isinstance(feature, Point) else feature
-                for feature in self.df["geom"]
+                for feature in self.df.geometry
             ]
-            self.df["geom"] = [
+            self.df.geometry = [
                 MultiLineString([feature])
                 if isinstance(feature, LineString)
                 else feature
-                for feature in self.df["geom"]
+                for feature in self.df.geometry
             ]
-            self.df["geom"] = [
+            self.df.geometry = [
                 MultiPolygon([feature]) if isinstance(feature, Polygon) else feature
-                for feature in self.df["geom"]
+                for feature in self.df.geometry
             ]

@@ -191,7 +191,7 @@ def test_mixed_types():
     layer = fcd.parse_config(sources)[0]
     layer.download()
     layer.clean()
-    assert [t.upper() for t in layer.df["geom"].geom_type.unique()] == ["MULTIPOINT"]
+    assert [t.upper() for t in layer.df.geometry.geom_type.unique()] == ["MULTIPOINT"]
 
 
 def duplicate_pk():
