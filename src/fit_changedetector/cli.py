@@ -187,7 +187,6 @@ def process(
                 )
                 os.rename(out_file + ".zip", destination)
                 LOG.info(f"layer {layer['out_layer']} saved to {destination}")
-                os.unlink(out_file + ".zip")
 
             # do nothing if out_path is empty
             elif out_path == ".":
