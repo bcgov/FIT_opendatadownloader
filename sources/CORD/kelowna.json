@@ -21,9 +21,9 @@
     "source_layer": "Parks",
     "protocol": "esri",
     "fields": [
-      "Name",
-      "Address",
-      "Class"
+      "LOCATIONDESC",
+      "NOTE9",
+      "STATUS_CLASS"
     ],
     "schedule": "Q"
   }
