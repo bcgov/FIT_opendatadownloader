@@ -194,7 +194,7 @@ def test_mixed_types():
     assert [t.upper() for t in layer.df.geometry.geom_type.unique()] == ["MULTIPOINT"]
 
 
-def duplicate_pk():
+def test_duplicate_pk():
     sources = [
         {
             "out_layer": "parks",
