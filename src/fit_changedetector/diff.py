@@ -70,7 +70,7 @@ def load(source_file_a, source_file_b, primary_key, fields=None):
 
 
 def diff(df_a, df_b, tolerance):
-    """compare data by joining on data frame indexes (primary keys)"""
+    """compare data frames by joining on indexes (primary keys)"""
     # find additions / deletions by joining on indexes
     joined = df_a.merge(
         df_b,
@@ -83,10 +83,6 @@ def diff(df_a, df_b, tolerance):
     additions = joined[joined["_merge"] == "right_only"]
     deletions = joined[joined["_merge"] == "left_only"]
     common = joined[joined["_merge"] == "both"]
-
-    modifications_attributes = None
-    modifications_geometries = None
-    modifications_both = None
 
     # find rows with modified attributes
     columns = list(df_a.columns)
