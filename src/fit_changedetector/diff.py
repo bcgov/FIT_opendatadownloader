@@ -70,15 +70,7 @@ def load(source_file_a, source_file_b, primary_key, fields=None):
 
 
 def diff(df_a, df_b, tolerance):
-    """compare data by joining on data frame indexes
-    - find additions/deletions
-    - find modifications
-    - to geometry via st_equals
-    - to attributes via attribute hash
-    - to attributes and geometry by hashing both
-
-    return as dict of lists of pks
-    """
+    """compare data by joining on data frame indexes (primary keys)"""
     # find additions / deletions by joining on indexes
     joined = df_a.merge(
         df_b,
