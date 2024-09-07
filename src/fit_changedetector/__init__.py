@@ -3,7 +3,6 @@ import jsonschema
 import logging
 
 from .source_layer import SourceLayer
-from .diff import load
 
 __version__ = "0.0.1a1"
 
