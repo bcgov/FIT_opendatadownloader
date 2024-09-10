@@ -6,11 +6,7 @@
     "protocol": "esri",
     "fields": [
       "Park_Name",
-      "ParkClassCode",
-      "SHAPE_Area"
-    ],
-    "primary_key": [
-      "Park_Name"
+      "ParkClassCode"
     ],
     "schedule": "Q"
   },
