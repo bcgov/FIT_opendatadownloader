@@ -177,7 +177,7 @@ def process(
                 s3_client.upload_file(
                     out_file + ".zip", os.environ.get("BUCKET"), s3_key
                 )
-                LOG.info(f"layer {layer['out_layer']} saved to {s3_key}")
+                LOG.info(f"layer {layer.out_layer} saved to {s3_key}")
                 os.unlink(out_file + ".zip")
 
             # alternatively, move to local path
@@ -188,11 +188,11 @@ def process(
                     out_file + ".zip",
                 )
                 os.rename(out_file + ".zip", destination)
-                LOG.info(f"layer {layer['out_layer']} saved to {destination}")
+                LOG.info(f"layer {layer.out_layer} saved to {destination}")
 
             # do nothing if out_path is empty
             elif out_path == ".":
-                LOG.info(f"layer {layer['out_layer']} saved to {out_file}.zip")
+                LOG.info(f"layer {layer.out_layer} saved to {out_file}.zip")
 
             # cleanup
             shutil.rmtree(out_file)
