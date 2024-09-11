@@ -2,8 +2,7 @@ import json
 import jsonschema
 import logging
 
-from .source_layer import SourceLayer
-from .diff import load
+from .data_source import SourceLayer, clean
 
 __version__ = "0.0.1a1"
 

@@ -22,16 +22,36 @@ Using `pip` managed by the target Python environment:
 
 ## Usage
 
-A CLI is provided for typical tasks:
+A command line interface is provided:
+
+```
+$ changedetector process --help
+Usage: changedetector process [OPTIONS] CONFIG_FILE
+
+  For each configured layer - download latest, detect changes, write to file
+
+Options:
+  -l, --layer TEXT            Layer to process in provided config.
+  -o, --out-path PATH         Output path or s3 prefix.
+  -f, --force                 Force download to out-path without running
+                              change detection.
+  -s, --schedule [D|W|M|Q|A]  Process only sources with given schedule tag.
+  -V, --validate              Validate configuration
+  -v, --verbose               Increase verbosity.
+  -q, --quiet                 Decrease verbosity.
+  --help                      Show this message and exit.
+
+```
+
+Examples:
 
 1. Validate a configuration file for a given source:
 	
-		changedetector process source_example.json --dry-run -v
+		changedetector process -vV example_config.json
 
-2. Download layers defined in `source_example.json` configuration file to zipped gdb (one file per layer),
-   saving to `/path/to/Change_Detection/` on the local filesystem:
+2. Download and process layers defined in `example_config.json` configuration file, saving to `/path/to/Change_Detection/` on the local filesystem:
 
-		changedetector download sources_example.json -v -p /path/to/Change_Detection
+		changedetector process -o my/output/path example_config.json 
 
 
 ## Configuration

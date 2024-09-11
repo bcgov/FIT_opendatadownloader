@@ -147,16 +147,19 @@ def process(
 
     # process all layers defined in source config
     for layer in layers:
-        # download from source
-        layer.download()
+        # download data from source to a geodataframe (df)
+        df = layer.download()
 
-        # if not just validating the source, process and dump to file
+        # clean the data and warn if duplicates are found
+        # Duplicates processing for geometries is based on provided precision value
+        # This fails if primary key + geometry is non-unique
+        df = fcd.clean(df, layer.fields, layer.primary_key, precision=0.1)
+
+        # process and dump to file if "validate" option is not set
         if not validate:
-            layer.clean()
-
             # write to gdb in cwd
             out_file = layer.out_layer + ".gdb"
-            layer.df.to_file(out_file, driver="OpenFileGDB", layer=layer.out_layer)
+            df.to_file(out_file, driver="OpenFileGDB", layer=layer.out_layer)
 
             # run change detection unless otherwise specified
             # if not force:
@@ -177,7 +180,7 @@ def process(
                 s3_client.upload_file(
                     out_file + ".zip", os.environ.get("BUCKET"), s3_key
                 )
-                LOG.info(f"layer {layer['out_layer']} saved to {s3_key}")
+                LOG.info(f"layer {layer.out_layer} saved to {s3_key}")
                 os.unlink(out_file + ".zip")
 
             # alternatively, move to local path
@@ -188,11 +191,11 @@ def process(
                     out_file + ".zip",
                 )
                 os.rename(out_file + ".zip", destination)
-                LOG.info(f"layer {layer['out_layer']} saved to {destination}")
+                LOG.info(f"layer {layer.out_layer} saved to {destination}")
 
             # do nothing if out_path is empty
             elif out_path == ".":
-                LOG.info(f"layer {layer['out_layer']} saved to {out_file}.zip")
+                LOG.info(f"layer {layer.out_layer} saved to {out_file}.zip")
 
             # cleanup
             shutil.rmtree(out_file)
