@@ -3,6 +3,7 @@ import jsonschema
 import logging
 
 from .data_source import SourceLayer, clean
+from .diff import differ
 
 __version__ = "0.0.1a1"
 
