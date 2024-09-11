@@ -1,0 +1,88 @@
+{
+  "type": "FeatureCollection",
+  "name": "parks",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:EPSG::3005"
+    }
+  },
+  "xy_coordinate_resolution": 0.0001,
+  "z_coordinate_resolution": 0.0001,
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "fcd_load_id": "1766d3c6316f393d7843798503bc66020a07d5e1",
+        "park_name": "BC Legislature Grounds",
+        "parkclasscode": "RP"
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [
+                1194876.4439,
+                381654.7095
+              ],
+              [
+                1194970.2272,
+                381945.1386
+              ],
+              [
+                1195108.6186,
+                381935.0147
+              ],
+              [
+                1195120.5584,
+                381688.9642
+              ],
+              [
+                1194876.4439,
+                381654.7095
+              ]
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "fcd_load_id": "82746ad29cee587b5e87083c9fbc5f85eff40bd0",
+        "park_name": "Confederation Plaza",
+        "parkclasscode": "SQ"
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [
+                1194892.5756,
+                381889.4995
+              ],
+              [
+                1194915.105,
+                381959.3912
+              ],
+              [
+                1194949.9026,
+                381947.7813
+              ],
+              [
+                1194927.3164,
+                381877.8318
+              ],
+              [
+                1194892.5756,
+                381889.4995
+              ]
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}
