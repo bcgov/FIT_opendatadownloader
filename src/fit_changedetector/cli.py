@@ -147,16 +147,19 @@ def process(
 
     # process all layers defined in source config
     for layer in layers:
-        # download from source
-        layer.download()
+        # download data from source to a geodataframe (df)
+        df = layer.download()
 
-        # if not just validating the source, process and dump to file
+        # clean the data and warn if duplicates are found
+        # Duplicates processing for geometries is based on provided precision value
+        # This fails if primary key + geometry is non-unique
+        df = fcd.clean(df, layer.fields, layer.primary_key, precision=0.1)
+
+        # process and dump to file if "validate" option is not set
         if not validate:
-            layer.clean()
-
             # write to gdb in cwd
             out_file = layer.out_layer + ".gdb"
-            layer.df.to_file(out_file, driver="OpenFileGDB", layer=layer.out_layer)
+            df.to_file(out_file, driver="OpenFileGDB", layer=layer.out_layer)
 
             # run change detection unless otherwise specified
             # if not force:

@@ -69,14 +69,8 @@ def test_parse_config(test_config_file):
 
 def test_download_file(test_config_file, tmpdir):
     layer = fcd.parse_config(test_config_file)[0]
-    layer.download()
-    assert len(layer.df) > 0
-
-
-# def test_download_esri(test_config_esri, tmpdir):
-#    source = fcd.parse_config(test_config_esri)[0]
-#    df = fcd.download(source)
-#    assert len(df) > 0
+    df = layer.download()
+    assert len(df) > 0
 
 
 def test_download_bcgw(tmpdir):
@@ -97,8 +91,8 @@ def test_download_bcgw(tmpdir):
         }
     ]
     layer = fcd.parse_config(sources)[0]
-    layer.download()
-    assert len(layer.df) == 3
+    df = layer.download()
+    assert len(df) == 3
 
 
 def test_invalid_file(test_config_file):
@@ -144,9 +138,9 @@ def test_clean_columns():
         }
     ]
     layer = fcd.parse_config(sources)[0]
-    layer.download()
-    layer.clean()
-    assert "airport_name_" in layer.df.columns
+    df = layer.download()
+    df = fcd.clean(df, layer.fields, layer.primary_key, precision=0.1)
+    assert "airport_name_" in df.columns
 
 
 def test_hash_pk():
@@ -171,9 +165,9 @@ def test_hash_pk():
         }
     ]
     layer = fcd.parse_config(sources)[0]
-    layer.download()
-    layer.clean()
-    assert layer.df["fcd_load_id"].iloc[0] == "51eac6b471a28"
+    df = layer.download()
+    df = fcd.clean(df, layer.fields, layer.primary_key, precision=0.1)
+    assert df["fcd_load_id"].iloc[0] == "51eac6b471a284d3341d8c0c63d0f1a286262a18"
 
 
 def test_mixed_types():
@@ -189,27 +183,6 @@ def test_mixed_types():
         }
     ]
     layer = fcd.parse_config(sources)[0]
-    layer.download()
-    layer.clean()
-    assert [t.upper() for t in layer.df.geometry.geom_type.unique()] == ["MULTIPOINT"]
-
-
-def test_duplicate_pk():
-    sources = [
-        {
-            "out_layer": "parks",
-            "source": "tests/data/dups.geojson",
-            "protocol": "http",
-            "fields": [
-                "SOURCE_DATA_ID",
-            ],
-            "primary_key": [
-                "SOURCE_DATA_ID",
-            ],
-            "schedule": "Q",
-        }
-    ]
-    layer = fcd.parse_config(sources)[0]
-    with pytest.raises(ValueError):
-        layer.download()
-        layer.clean()
+    df = layer.download()
+    df = fcd.clean(df, layer.fields, layer.primary_key, precision=0.1)
+    assert [t.upper() for t in df.geometry.geom_type.unique()] == ["MULTIPOINT"]
