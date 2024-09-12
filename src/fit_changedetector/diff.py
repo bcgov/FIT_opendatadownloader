@@ -3,6 +3,25 @@ import fit_changedetector as fcd
 
 
 def differ(source_file_a, source_file_b, primary_key, fields=None, precision=2):
+    """
+    Compare two spatial datasets.
+    Source files MUST:
+    - be readable by ogr
+    - have valid, compatible primary keys
+    - have at least one equivalent column (ok if this is just the primary key)
+    - equivalent column names must be of equivalent types
+    - have geometries stored in a "geometry" column
+    - have equivalent geometry types and coordinate reference systems
+
+    Output is five dataframes
+    - additions
+    - deletions
+    - modifications - geometry only
+    - modifications - attribute only
+    - modifications - geometry and attribute
+
+    The attribute change dataframes include values from both sources.
+    """
     df_a = geopandas.read_file(source_file_a)
     df_b = geopandas.read_file(source_file_b)
 
