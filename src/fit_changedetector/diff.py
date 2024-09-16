@@ -131,11 +131,12 @@ def differ(source_file_a, source_file_b, primary_key, fields=None, precision=2):
     ]
 
     # join back to geometries in b, creating attribute diff
-    modified_attributes.merge(
+    modified_attributes = modified_attributes.merge(
         common_b["geometry"], how="inner", left_index=True, right_index=True
-    )
+    ).set_geometry("geometry")
+
     # note the columns generated
-    attribute_diff_columns = list(modified_attributes.columns.values) + ["geometry"]
+    attribute_diff_columns = list(modified_attributes.columns.values)
 
     # find all rows with modified geometries, retaining new geometries only
     common_mod_geoms = common.rename(columns=column_name_remap_b)[columns]
@@ -143,7 +144,15 @@ def differ(source_file_a, source_file_b, primary_key, fields=None, precision=2):
         ~common_a.geom_equals_exact(common_b, precision)
     ]
 
-    # join modified attributes to modified geometries
+    # join modified attributes to modified geometries,
+    # creating a data structure containing all modifications, where _merge indicates
+    # into which set we want to place the modifications:
+    # - "both": attributes and geometries have been modified
+    # - "left_only": only attributes have been modified
+    # - "right_only": only geometries have been modified
+    # the dataframe includes two sets of geometries -
+    # _x: from modified_attributes
+    # _y: from modified_geometries
     modified_attributes_geometries = modified_attributes.merge(
         modified_geometries,
         how="outer",
@@ -152,18 +161,34 @@ def differ(source_file_a, source_file_b, primary_key, fields=None, precision=2):
         indicator=True,
     )
 
-    # two sets of modified attributes, using diff columns
-    m_attributes = modified_attributes_geometries[
-        modified_attributes_geometries["_merge"] == "left_only"
-    ][attribute_diff_columns]
-    m_attributes_geometries = modified_attributes_geometries[
-        modified_attributes_geometries["_merge"] == "both"
-    ][attribute_diff_columns]
+    # generate the output mofications dataframes
+
+    # modified attributes retains left geom from above join
+    m_attributes = (
+        modified_attributes_geometries[
+            modified_attributes_geometries["_merge"] == "left_only"
+        ]
+        .rename(columns={"geometry_x": "geometry"})[attribute_diff_columns]
+        .set_geometry("geometry")
+    )
+
+    # modified attributes and geometries retains either geometry
+    m_attributes_geometries = (
+        modified_attributes_geometries[
+            modified_attributes_geometries["_merge"] == "both"
+        ]
+        .rename(columns={"geometry_x": "geometry"})[attribute_diff_columns]
+        .set_geometry("geometry")
+    )
 
     # modified geoms only, using source column names
-    m_geometries = modified_attributes_geometries[
-        modified_attributes_geometries["_merge"] == "right_only"
-    ][columns]
+    m_geometries = (
+        modified_attributes_geometries[
+            modified_attributes_geometries["_merge"] == "right_only"
+        ]
+        .rename(columns={"geometry_y": "geometry"})[columns]
+        .set_geometry("geometry")
+    )
 
     # todo - returning 5 dataframes is fine,
     # but as a dict prob better? or as properties of a diff/change detector object?
