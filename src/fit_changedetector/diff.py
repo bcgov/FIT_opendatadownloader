@@ -2,18 +2,26 @@ import geopandas
 import fit_changedetector as fcd
 
 
-def differ(source_file_a, source_file_b, primary_key, fields=None, precision=2):
+def differ(
+    source_file_a,
+    source_file_b,
+    primary_key,
+    fields=None,
+    precision=2,
+    suffix_a="a",
+    suffix_b="b",
+):
     """
-    Compare two spatial datasets.
+    Compare two spatial datasets and generate a diff.
+
     Source files MUST:
     - be readable by ogr
     - have valid, compatible primary keys
     - have at least one equivalent column (ok if this is just the primary key)
     - equivalent column names must be of equivalent types
-    - have geometries stored in a "geometry" column
     - have equivalent geometry types and coordinate reference systems
 
-    Output is five dataframes
+    Output diff is represented by five dataframes:
     - additions
     - deletions
     - modifications - geometry only
@@ -24,6 +32,12 @@ def differ(source_file_a, source_file_b, primary_key, fields=None, precision=2):
     """
     df_a = geopandas.read_file(source_file_a)
     df_b = geopandas.read_file(source_file_b)
+
+    # standardize geometry column name
+    if df_a.geometry.name != "geometry":
+        df_a = df_a.rename_geometry("geometry")
+    if df_b.geometry.name != "geometry":
+        df_b = df_b.rename_geometry("geometry")
 
     # field names equivalent? (for fields of interest)
     fields_a = set([c for c in df_a.columns if c != "geometry"])
@@ -119,8 +133,8 @@ def differ(source_file_a, source_file_b, primary_key, fields=None, precision=2):
     modified_attributes = common_a_attrib.compare(
         common_b_attrib,
         result_names=(
-            "a",
-            "b",
+            suffix_a,
+            suffix_b,
         ),
         keep_shape=True,
     ).dropna(axis=0, how="all")
