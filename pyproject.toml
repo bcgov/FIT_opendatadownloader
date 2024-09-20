@@ -3,13 +3,13 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "fit_changedetector"
+name = "fit_opendatadownloader"
 dynamic = ["version"]
 readme = "README.md"
 authors = [
   {name="Simon Norris", email="snorris@hillcrestgeo.ca"},
 ]
-description = "Monitor open data, report when changes are detected"
+description = "Download open data, monitor and report on changes"
 requires-python = ">=3.9"
 classifiers = [
     "Development Status :: 1 - Planning",
@@ -22,9 +22,8 @@ dependencies = [
   "bcdata",
   "boto3",
   "click",
-  "duckdb",
   "esridump",
-  "geopandas==0.14.4",
+  "geopandas",
   "jsonschema",
 ]
 
@@ -36,11 +35,11 @@ test = [
 ]
 
 [project.scripts]
-changedetector = "fit_changedetector.cli:cli"
+fit_downloader = "fit_downloader.cli:cli"
 
 [project.urls]
-Homepage = "https://github.com/bcgov/fit_changedetector"
-Issues = "https://github.com/bcgov/fit_changedetector"
+Homepage = "https://github.com/bcgov/fit_opendatadownloader"
+Issues = "https://github.com/bcgov/fit_opendatadownloader"
 
 [tool.hatch.version]
-path = "src/fit_changedetector/__init__.py"
+path = "src/fit_opendatadownloader/__init__.py"

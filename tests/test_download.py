@@ -1,7 +1,7 @@
 import pytest
 from jsonschema.exceptions import ValidationError
 
-import fit_changedetector as fcd
+import fit_opendatadownloader as fdl
 
 
 @pytest.fixture
@@ -63,12 +63,12 @@ def test_config_esri():
 
 # parsing does not fail so config is valid
 def test_parse_config(test_config_file):
-    layer = fcd.parse_config(test_config_file)[0]
+    layer = fdl.parse_config(test_config_file)[0]
     assert layer.out_layer == "parks"
 
 
 def test_download_file(test_config_file, tmpdir):
-    layer = fcd.parse_config(test_config_file)[0]
+    layer = fdl.parse_config(test_config_file)[0]
     df = layer.download()
     assert len(df) > 0
 
@@ -90,13 +90,13 @@ def test_download_bcgw(tmpdir):
             "schedule": "Q",
         }
     ]
-    layer = fcd.parse_config(sources)[0]
+    layer = fdl.parse_config(sources)[0]
     df = layer.download()
     assert len(df) == 3
 
 
 def test_invalid_file(test_config_file):
-    layer = fcd.parse_config(test_config_file)[0]
+    layer = fdl.parse_config(test_config_file)[0]
     layer.fields = ["INVALID_COLUMN"]
     with pytest.raises(ValueError):
         layer.download()
@@ -106,14 +106,14 @@ def test_invalid_pk(test_config_file):
     config = test_config_file
     config[0]["primary_key"] = ["PARK_NAME_INVALID"]
     with pytest.raises(ValueError):
-        fcd.parse_config(config)
+        fdl.parse_config(config)
 
 
 def test_invalid_schedule(test_config_file):
     sources = test_config_file
     sources[0]["schedule"] = "MONTH"
     with pytest.raises(ValidationError):
-        fcd.parse_config(sources)
+        fdl.parse_config(sources)
 
 
 def test_clean_columns():
@@ -137,9 +137,9 @@ def test_clean_columns():
             "schedule": "Q",
         }
     ]
-    layer = fcd.parse_config(sources)[0]
+    layer = fdl.parse_config(sources)[0]
     df = layer.download()
-    df = fcd.clean(df, layer.fields, layer.primary_key, precision=0.1)
+    df = fdl.clean(df, layer.fields, layer.primary_key, precision=0.1)
     assert "airport_name_" in df.columns
 
 
@@ -164,10 +164,10 @@ def test_hash_pk():
             "schedule": "Q",
         }
     ]
-    layer = fcd.parse_config(sources)[0]
+    layer = fdl.parse_config(sources)[0]
     df = layer.download()
-    df = fcd.clean(df, layer.fields, layer.primary_key, precision=0.1)
-    assert df["fcd_load_id"].iloc[0] == "51eac6b471a284d3341d8c0c63d0f1a286262a18"
+    df = fdl.clean(df, layer.fields, layer.primary_key, precision=0.1)
+    assert df["fdl_load_id"].iloc[0] == "51eac6b471a284d3341d8c0c63d0f1a286262a18"
 
 
 def test_mixed_types():
@@ -182,7 +182,7 @@ def test_mixed_types():
             "schedule": "Q",
         }
     ]
-    layer = fcd.parse_config(sources)[0]
+    layer = fdl.parse_config(sources)[0]
     df = layer.download()
-    df = fcd.clean(df, layer.fields, layer.primary_key, precision=0.1)
+    df = fdl.clean(df, layer.fields, layer.primary_key, precision=0.1)
     assert [t.upper() for t in df.geometry.geom_type.unique()] == ["MULTIPOINT"]

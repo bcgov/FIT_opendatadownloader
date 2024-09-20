@@ -1,4 +1,4 @@
-FROM ghcr.io/osgeo/gdal:ubuntu-small-3.7.0
+FROM ghcr.io/osgeo/gdal:ubuntu-small-3.9.2
 
 ENV LANG="C.UTF-8" LC_ALL="C.UTF-8"
 ENV DEBIAN_FRONTEND=noninteractive
@@ -17,7 +17,7 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
     unzip awscliv2.zip && \
     ./aws/install
 
-WORKDIR /home/fit_changedetector
+WORKDIR /home/fit_opendatadownloader
 
 COPY requirements*.txt ./
 

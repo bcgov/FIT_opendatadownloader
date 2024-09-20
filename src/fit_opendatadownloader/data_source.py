@@ -16,7 +16,7 @@ from shapely.geometry.multipolygon import MultiPolygon
 from shapely.geometry.point import Point
 from shapely.geometry.polygon import Polygon
 
-import fit_changedetector as fcd
+import fit_opendatadownloader as fdl
 
 LOG = logging.getLogger(__name__)
 
@@ -147,7 +147,7 @@ def clean(df, fields, primary_key, precision=0.01, fcd_primary_key="fcd_load_id"
         pks = ["geometry_p"]
 
     # add pk based on hash
-    df = fcd.add_synthetic_primary_key(df, columns=pks, new_column=fcd_primary_key)
+    df = fdl.add_synthetic_primary_key(df, columns=pks, new_column=fcd_primary_key)
 
     # drop the reduced precision geometry column
     df = df[[fcd_primary_key] + fields + ["geometry"]]
@@ -162,7 +162,7 @@ def standardize_spatial_types(df):
     """
     # inspect spatial types
     types = set([t.upper() for t in df.geometry.geom_type.unique()])
-    unsupported = types.difference(fcd.supported_spatial_types)
+    unsupported = types.difference(fdl.supported_spatial_types)
     if unsupported:
         raise ValueError(f"Geometries of type {unsupported} are not supported")
         # fail for now but maybe better would be to warn and remove all rows having this type?

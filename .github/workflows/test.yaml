@@ -5,14 +5,14 @@ on:
     paths:
       - '.github/workflows/test.yaml'
       - 'requirements*.txt'
-      - 'src/fit_changedetector/**'
+      - 'src/fit_opendatadownloader/**'
       - 'tests/**'
   pull_request:
     branches: [ main ]
     paths:
       - '.github/workflows/test.yaml'
       - 'requirements*.txt'
-      - 'src/fit_changedetector/**'
+      - 'src/fit_opendatadownloader/**'
       - 'tests/**'
 env:
   AWS_ENDPOINT_URL: "https://nrs.objectstore.gov.bc.ca"
@@ -27,7 +27,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     name: test
-    container: ghcr.io/bcgov/fit_changedetector:main
+    container: ghcr.io/bcgov/fit_opendatadownloader:main
     environment: production
     env:
         DEBIAN_FRONTEND: noninteractive

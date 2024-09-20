@@ -1,77 +1,86 @@
 {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://raw.githubusercontent.com/bcgov/fit_changedetector/main/source.schema.json",
-    "title": "Data source schema",
-    "description": "Definition of data sources for output layers",
-    "type": "array",
-    "items": {
-        "type": "object",
-        "properties": {
-            "out_layer": {
-                "description": "Name of output dataset, only parks and roads are currently supported",
-                "type": "string",
-                "enum": [
-                    "roads",
-                    "parks"
-                    ]
-            },
-            "source": {
-                "description": "url/file path to a file based source readable by GDAL/OGR or a Esri REST layer endpoint URL",
-                "type": "string"
-            },
-            "protocol": {
-                "description": "Resource type for the source, one of http / esri / bcgw",
-                "type": "string",
-                "enum": [
-                    "http",
-                    "esri",
-                    "bcgw"
-                ]
-            },
-            "fields": {
-                "description": "List of source field(s) to retain in the download",
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
-            },
-            "schedule": {
-                "description": "Download frequency (D=Daily, W=Weekly, M=Monthly, Q=Quarterly, A=Annualy",
-                "type": "string",
-                "enum": [
-                    "D",
-                    "W",
-                    "M",
-                    "Q",
-                    "A"
-                ]
-            },
-            "source_layer": {
-                "description": "Name of layer to use within source, default is first layer in file",
-                "type": "string"
-            },
-            "query": {
-                "description": "Query to subset data in source/layer - ECQL for BCGW sources, OGR SQL for files",
-                "type": ["string", "null"]
-            },
-            "primary_key": {
-                "description": "List of source field(s) used as primary key, must be a subset of `fields`",
-                "type": "array",
-                "items": {
-                    "type": ["string", "null"]
-                }
-            },
-            "metadata_url": {
-                "description": "Link to source metadata, where available",
-                "type": ["string", "null"]
-            }
-        },
-        "required": [
-            "out_layer",
-            "source",
-            "protocol",
-            "fields",
-            "schedule"
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/bcgov/fit_opendatadownloader/main/source.schema.json",
+  "title": "Data source schema",
+  "description": "Definition of data sources for output layers",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "out_layer": {
+        "description": "Name of output dataset, only parks and roads are currently supported",
+        "type": "string",
+        "enum": [
+          "roads",
+          "parks"
         ]
-    }
+      },
+      "source": {
+        "description": "url/file path to a file based source readable by GDAL/OGR or a Esri REST layer endpoint URL",
+        "type": "string"
+      },
+      "protocol": {
+        "description": "Resource type for the source, one of http / esri / bcgw",
+        "type": "string",
+        "enum": [
+          "http",
+          "esri",
+          "bcgw"
+        ]
+      },
+      "fields": {
+        "description": "List of source field(s) to retain in the download",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "schedule": {
+        "description": "Download frequency (D=Daily, W=Weekly, M=Monthly, Q=Quarterly, A=Annualy",
+        "type": "string",
+        "enum": [
+          "D",
+          "W",
+          "M",
+          "Q",
+          "A"
+        ]
+      },
+      "source_layer": {
+        "description": "Name of layer to use within source, default is first layer in file",
+        "type": "string"
+      },
+      "query": {
+        "description": "Query to subset data in source/layer - ECQL for BCGW sources, OGR SQL for files",
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "primary_key": {
+        "description": "List of source field(s) used as primary key, must be a subset of `fields`",
+        "type": "array",
+        "items": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "metadata_url": {
+        "description": "Link to source metadata, where available",
+        "type": [
+          "string",
+          "null"
+        ]
+      }
+    },
+    "required": [
+      "out_layer",
+      "source",
+      "protocol",
+      "fields",
+      "schedule"
+    ]
+  }
 }
