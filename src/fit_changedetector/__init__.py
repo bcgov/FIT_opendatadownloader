@@ -3,7 +3,7 @@ import jsonschema
 import logging
 
 from .data_source import SourceLayer, clean
-from .diff import differ
+from .diff import gdf_diff, add_synthetic_primary_key
 
 __version__ = "0.0.1a1"
 

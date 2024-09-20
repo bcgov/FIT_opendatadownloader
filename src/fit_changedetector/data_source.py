@@ -90,7 +90,7 @@ def clean(df, fields, primary_key, precision=0.01, fcd_primary_key="fcd_load_id"
     - drop duplicates (considering retained fields and geometries, with reduced precision if specified)
     - if primary key is provided, validate it is unique and add geometry to pk if it is not
     - if primary key is not provided, default to using the geometry as pk (detecting changes to attributes)
-    - hash the primary key into a new column called fc_load_id, to use as simple key for generating diffs
+    - hash the primary key into a new column, to use as key for generating diffs
     """
     # reproject to BC Albers if necessary
     if df.crs != CRS.from_user_input(3005):
@@ -113,7 +113,6 @@ def clean(df, fields, primary_key, precision=0.01, fcd_primary_key="fcd_load_id"
     df = df[fields + ["geometry"]]
 
     # normalize the geometries
-    # todo - should this also call make_valid()?
     df["geometry"] = df["geometry"].normalize()
 
     # then add a reduced precision geometry column based on the normalized geoms
@@ -147,27 +146,8 @@ def clean(df, fields, primary_key, precision=0.01, fcd_primary_key="fcd_load_id"
     else:
         pks = ["geometry_p"]
 
-    # Even after adding geometries to the primary key, duplicates could still
-    # exist (duplicates for *all* columns plus geometry are removed above)
-    # Check for this and fail if duplicate primary keys are still present
-    if len(df) != len(df[pks].drop_duplicates()):
-        raise ValueError(
-            f"Duplicate values for primary keys {','.join(pks)} exist - set config primary_key to a column with unique values or remove"
-        )
-
-    # Fail if output hashed id column is already present in data
-    if fcd_primary_key in df.columns:
-        raise ValueError(
-            f"column {fcd_primary_key} is present in input dataset, use some other column name"
-        )
-
-    # add sha1 hash of primary keys
-    df[fcd_primary_key] = df[pks].apply(
-        lambda x: hashlib.sha1(
-            "|".join(x.astype(str).fillna("NULL").values).encode("utf-8")
-        ).hexdigest(),
-        axis=1,
-    )
+    # add pk based on hash
+    df = fcd.add_synthetic_primary_key(df, columns=pks, new_column=fcd_primary_key)
 
     # drop the reduced precision geometry column
     df = df[[fcd_primary_key] + fields + ["geometry"]]

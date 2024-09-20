@@ -1,21 +1,50 @@
+import hashlib
+import logging
+
 import geopandas
 import fit_changedetector as fcd
 
+LOG = logging.getLogger(__name__)
 
-def differ(
-    source_file_a,
-    source_file_b,
+
+def add_synthetic_primary_key(df, columns, new_column):
+    """add a synthetic primary key to provided dataframe based on hash of input columns"""
+    # Fail if output column is already present in data
+    if new_column in df.columns:
+        raise ValueError(
+            f"column {new_column} is present in input dataset, use some other column name"
+        )
+
+    # remove any duplicates
+    n_dups = len(df) - len(df.drop_duplicates(subset=columns))
+    if n_dups > 0:
+        LOG.warning(f"Dropping {n_dups} duplicate rows")
+        df = df.drop_duplicates(columns)
+
+    # add sha1 hash of provided columns
+    df[new_column] = df[columns].apply(
+        lambda x: hashlib.sha1(
+            "|".join(x.astype(str).fillna("NULL").values).encode("utf-8")
+        ).hexdigest(),
+        axis=1,
+    )
+    return df
+
+
+def gdf_diff(
+    df_a,
+    df_b,
     primary_key,
     fields=None,
     precision=2,
     suffix_a="a",
     suffix_b="b",
+    return_type="gdf",
 ):
     """
-    Compare two spatial datasets and generate a diff.
+    Compare two geodataframes and generate a diff.
 
-    Source files MUST:
-    - be readable by ogr
+    Sources MUST:
     - have valid, compatible primary keys
     - have at least one equivalent column (ok if this is just the primary key)
     - equivalent column names must be of equivalent types
@@ -30,9 +59,6 @@ def differ(
 
     The attribute change dataframes include values from both sources.
     """
-    df_a = geopandas.read_file(source_file_a)
-    df_b = geopandas.read_file(source_file_b)
-
     # standardize geometry column name
     if df_a.geometry.name != "geometry":
         df_a = df_a.rename_geometry("geometry")
@@ -89,11 +115,11 @@ def differ(
     # is primary key unique in both datasets?
     if len(df_a) != len(df_a[[primary_key]].drop_duplicates()):
         raise ValueError(
-            f"Duplicate values exist for primary_key {primary_key}, in {source_file_a} consider using another primary key or pre-processing to remove duplicates"
+            f"Duplicate values exist for primary_key {primary_key}, in dataframe a, consider using another primary key or pre-processing to remove duplicates"
         )
     if len(df_b) != len(df_b[[primary_key]].drop_duplicates()):
         raise ValueError(
-            f"Duplicate values exist for primary_key {primary_key}, in {source_file_b} consider using another primary key or pre-processing to remove duplicates"
+            f"Duplicate values exist for primary_key {primary_key}, in dataframe b, consider using another primary key or pre-processing to remove duplicates"
         )
 
     # set pandas dataframe index to primary key
@@ -204,6 +230,17 @@ def differ(
         .set_geometry("geometry")
     )
 
-    # todo - returning 5 dataframes is fine,
-    # but as a dict prob better? or as properties of a diff/change detector object?
-    return (additions, deletions, m_attributes_geometries, m_attributes, m_geometries)
+    if return_type == "gdf":
+        return {
+            "NEW": additions,
+            "DELETED": deletions,
+            "UNCHANGED": [],
+            "MODIFIED_BOTH": m_attributes_geometries,
+            "MODIFIED_ATTR": m_attributes,
+            "MODIFIED_GEOM": m_geometries,
+            "MODIFIED_ALL": [],
+            "ALL_CHANGES": [],
+            "MODIFIED_BOTH_OBSLT": [],
+            "MODIFIED_ATTR_OBSLT": [],
+            "MODIFIED_GEOM_OBSLT": [],
+        }
