@@ -2,5 +2,6 @@ bcdata
 boto3
 click
 esridump
-geopandas==0.14.4
+geopandas
 jsonschema
+fit_changedetector@git+https://github.com/bcgov/FIT_changedetector

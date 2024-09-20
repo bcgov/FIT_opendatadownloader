@@ -17,6 +17,7 @@ from shapely.geometry.point import Point
 from shapely.geometry.polygon import Polygon
 
 import fit_opendatadownloader as fdl
+import fit_changedetector as fcd
 
 LOG = logging.getLogger(__name__)
 
@@ -78,7 +79,7 @@ class SourceLayer:
         return df
 
 
-def clean(df, fields, primary_key, precision=0.01, fcd_primary_key="fcd_load_id"):
+def clean(df, fields, primary_key, precision=0.01, fdl_primary_key="fdl_load_id"):
     """
     Standardize a geodataframe, confirming:
 
@@ -147,10 +148,10 @@ def clean(df, fields, primary_key, precision=0.01, fcd_primary_key="fcd_load_id"
         pks = ["geometry_p"]
 
     # add pk based on hash
-    df = fdl.add_synthetic_primary_key(df, columns=pks, new_column=fcd_primary_key)
+    df = fcd.add_synthetic_primary_key(df, columns=pks, new_column=fdl_primary_key)
 
     # drop the reduced precision geometry column
-    df = df[[fcd_primary_key] + fields + ["geometry"]]
+    df = df[[fdl_primary_key] + fields + ["geometry"]]
     return df
 
 

@@ -25,6 +25,7 @@ dependencies = [
   "esridump",
   "geopandas",
   "jsonschema",
+  "fit_changedetector@git+https://github.com/bcgov/FIT_changedetector",
 ]
 
 [project.optional-dependencies]
@@ -43,3 +44,6 @@ Issues = "https://github.com/bcgov/fit_opendatadownloader"
 
 [tool.hatch.version]
 path = "src/fit_opendatadownloader/__init__.py"
+
+[tool.hatch.metadata]
+allow-direct-references = true
