@@ -2,7 +2,7 @@
 
 [![Lifecycle:Experimental](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)
 
-GeoBC Foundational Information and Technology (FIT) Section tool for downloading open data and reporting on updates.
+GeoBC Foundational Information and Technology (FIT) Section tool for downloading open data and reporting on changes since last download.
 
 ## Workflow
 
@@ -49,7 +49,7 @@ Examples:
 	
 		fit_downloader process -vV example_config.json
 
-2. Download and process layers defined in `example_config.json` configuration file, saving to `/path/to/Change_Detection/` on the local filesystem:
+2. Download and process layers defined in `example_config.json` configuration file, saving to `/my/output/path` on the local filesystem:
 
 		fit_downloader process -o my/output/path example_config.json 
 
