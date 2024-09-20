@@ -1,8 +1,8 @@
-# FIT Change Detector 
+# FIT Open Data Downloader
 
 [![Lifecycle:Experimental](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)
 
-GeoBC Foundational Information and Technology (FIT) Section tool for monitoring open data and reporting on any detected changes.
+GeoBC Foundational Information and Technology (FIT) Section tool for downloading open data and reporting on updates.
 
 ## Workflow
 
@@ -15,8 +15,8 @@ GeoBC Foundational Information and Technology (FIT) Section tool for monitoring 
 
 Using `pip` managed by the target Python environment:
 
-	git clone git@github.com:bcgov/FIT_changedetector.git
-	cd FIT_changedetector
+	git clone git@github.com:bcgov/FIT_opendatadownloader.git
+	cd FIT_opendatadownloader
 	pip install .
 
 
@@ -25,8 +25,8 @@ Using `pip` managed by the target Python environment:
 A command line interface is provided:
 
 ```
-$ changedetector process --help
-Usage: changedetector process [OPTIONS] CONFIG_FILE
+$ fit_downloader process --help
+Usage: fit_downloader process [OPTIONS] CONFIG_FILE
 
   For each configured layer - download latest, detect changes, write to file
 
@@ -47,11 +47,11 @@ Examples:
 
 1. Validate a configuration file for a given source:
 	
-		changedetector process -vV example_config.json
+		fit_downloader process -vV example_config.json
 
 2. Download and process layers defined in `example_config.json` configuration file, saving to `/path/to/Change_Detection/` on the local filesystem:
 
-		changedetector process -o my/output/path example_config.json 
+		fit_downloader process -o my/output/path example_config.json 
 
 
 ## Configuration
@@ -74,14 +74,14 @@ Each config .json file has several tag defining how to handle data for the given
 
 For the full schema definition, see [`source.schema.json`](source.schema.json).
 
-## Local development and testing
+## Development and testing
 
 ### virtual environment
 
 Using GDAL on your system:
 
-	$ git clone git@github.com:bcgov/FIT_changedetector.git
-	$ cd FIT_changedetector
+	$ git clone git@github.com:bcgov/FIT_opendatadownloader.git
+	$ cd FIT_opendatadownloader
 	$ python -m venv .venv
 	$ source .venv/bin/activate
 	$ pip install -e .[test]
@@ -89,20 +89,14 @@ Using GDAL on your system:
 
 ### Dockerized environment
 
-GDAL `3.7.0e` is the latest available in a BCGov GTS Python environment.
-A Dockerfile is provided to create a similar testing environment.
-
 Using GDAL on a docker image:
 
 To build:
 
-	$ git clone git@github.com:bcgov/FIT_changedetector.git
-	$ cd FIT_changedetector
-	$ docker build -t fit_changedetector .
+	$ git clone git@github.com:bcgov/FIT_opendatadownloader.git
+	$ cd FIT_opendatadownlaoder
+	$ docker build -t fit_opendatadownloader .
 
 Drop in to a bash session:
 
-	$ docker run --rm -it -v ./:/home/fit_changedetector fit_changedetector  bash
-
-
-Note that Python 3.9 is not available via the [gdal ubuntu docker images](https://github.com/OSGeo/gdal/tree/master/docker#small-ghcrioosgeogdalubuntu-small-latest), testing against 3.10 should be fine for purposes of this tool.
+	$ docker run --rm -it -v ./:/home/fit_opendatadownloader fit_opendatadownloader  bash

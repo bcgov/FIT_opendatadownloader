@@ -15,7 +15,7 @@ env:
 jobs:
   get-matrix:
     runs-on: ubuntu-latest
-    container: ghcr.io/bcgov/fit_changedetector:main
+    container: ghcr.io/bcgov/fit_opendatadownloader:main
     environment: production
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
@@ -26,11 +26,11 @@ jobs:
           python -m pip install .
       - id: set-matrix
         run: |
-          DATA=$(changedetector list-configs -s Q | jq -R -s -c 'split("\n")[:-1]')
+          DATA=$(fit_downloader list-configs -s Q | jq -R -s -c 'split("\n")[:-1]')
           echo "matrix=$DATA" >> $GITHUB_OUTPUT
   process:
     runs-on: ubuntu-latest
-    container: ghcr.io/bcgov/fit_changedetector:main
+    container: ghcr.io/bcgov/fit_opendatadownloader:main
     environment: production
     needs: get-matrix
     if: ${{ needs.get-matrix.outputs.matrix != '[]' && needs.get-matrix.outputs.matrix != '' }}
@@ -47,4 +47,4 @@ jobs:
           python -m pip install .
       - name: Process source
         run: |
-          changedetector process -v --out-path s3://$BUCKET/Change_Detection/${{ matrix.arg }} -s Q sources/${{ matrix.arg }}.json
+          fit_downloader process -v --out-path s3://$BUCKET/Change_Detection/${{ matrix.arg }} -s Q sources/${{ matrix.arg }}.json
