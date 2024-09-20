@@ -89,6 +89,9 @@ Using GDAL on your system:
 
 ### Dockerized environment
 
+GDAL `3.7.0e` is the latest available in a BCGov GTS Python environment.
+A Dockerfile is provided to create a similar testing environment.
+
 Using GDAL on a docker image:
 
 To build:
@@ -100,3 +103,6 @@ To build:
 Drop in to a bash session:
 
 	$ docker run --rm -it -v ./:/home/fit_changedetector fit_changedetector  bash
+
+
+Note that Python 3.9 is not available via the [gdal ubuntu docker images](https://github.com/OSGeo/gdal/tree/master/docker#small-ghcrioosgeogdalubuntu-small-latest), testing against 3.10 should be fine for purposes of this tool.

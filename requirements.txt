@@ -1,7 +1,6 @@
 bcdata
 boto3
 click
-duckdb
 esridump
-geopandas
+geopandas==0.14.4
 jsonschema
