@@ -139,7 +139,9 @@ def test_clean_columns():
     ]
     layer = fdl.parse_config(sources)[0]
     df = layer.download()
-    df = fdl.clean(df, layer.fields, layer.primary_key, precision=0.1)
+    df = fdl.clean(
+        df, fields=layer.fields, primary_key=layer.primary_key, precision=0.1
+    )
     assert "airport_name_" in df.columns
 
 
@@ -160,14 +162,13 @@ def test_hash_pk():
                 "POSTAL_CODE",
                 "LOCALITY",
             ],
-            "primary_key": ["SOURCE_DATA_ID"],
             "schedule": "Q",
         }
     ]
     layer = fdl.parse_config(sources)[0]
     df = layer.download()
-    df = fdl.clean(df, layer.fields, layer.primary_key, precision=0.1)
-    assert df["fdl_load_id"].iloc[0] == "51eac6b471a284d3341d8c0c63d0f1a286262a18"
+    df = fdl.clean(df, layer.fields, precision=0.1)
+    assert df["fdl_load_id"].iloc[0] == "597b8d8bef757cb12fec15ce027fb2c6f84775d7"
 
 
 def test_mixed_types():

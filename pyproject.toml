@@ -36,7 +36,7 @@ test = [
 ]
 
 [project.scripts]
-fit_downloader = "fit_downloader.cli:cli"
+fit_downloader = "fit_opendatadownloader.cli:cli"
 
 [project.urls]
 Homepage = "https://github.com/bcgov/fit_opendatadownloader"
