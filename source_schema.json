@@ -67,6 +67,16 @@
           ]
         }
       },
+      "hash_fields": {
+        "description": "When no primary key is available, append these fields to geometry when creating a hash based primary key",
+        "type": "array",
+        "items": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
       "metadata_url": {
         "description": "Link to source metadata, where available",
         "type": [

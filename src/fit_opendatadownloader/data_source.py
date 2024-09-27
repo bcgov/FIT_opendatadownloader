@@ -82,7 +82,8 @@ class SourceLayer:
 def clean(
     df,
     fields,
-    primary_key=None,
+    primary_key=[],
+    hash_fields=[],
     precision=0.01,
     fdl_primary_key="fdl_load_id",
     drop_geom_duplicates=False,
@@ -108,7 +109,7 @@ def clean(
     if df.geometry.name != "geometry":
         df = df.rename_geometry("geometry")
     cleaned_column_map = {}
-    for column in fields:
+    for column in fields + hash_fields:
         cleaned_column_map[column] = re.sub(
             r"\W+", "", column.lower().strip().replace(" ", "_")
         )
@@ -116,6 +117,8 @@ def clean(
 
     # assign cleaned column names to fields list
     fields = list(cleaned_column_map.values())
+
+    hash_fields = [cleaned_column_map[k] for k in hash_fields]
 
     # drop any columns not listed in config (minus geometry)
     df = df[fields + ["geometry"]]
@@ -139,29 +142,22 @@ def clean(
         LOG.info(
             f"Adding hashed key {fdl_primary_key}, based on hash of provided primary_key {','.join(pks)}"
         )
-        df = fcd.add_hash_key(df, fdl_primary_key, fields=pks, hash_geometry=False)
-        pks = [fdl_primary_key]
-
-    # if no primary key provided, just use the geometry
-    else:
-        LOG.info(
-            f"Adding hashed key {fdl_primary_key}, based on hash of geometry {','.join(pks)}"
-        )
         df = fcd.add_hash_key(
-            df, fdl_primary_key, hash_geometry=True, precision=precision
+            df, new_field=fdl_primary_key, fields=pks, hash_geometry=False
         )
         pks = [fdl_primary_key]
 
-    # duplicates could be present if using geometry hash as pk
-    # report on duplicates and drop (if specified)
-    n_duplicates = len(df.drop_duplicates(subset=pks))
-    if n_duplicates > 0:
-        LOG.warning(f"{n_duplicates} duplicates are present in data")
-        if drop_geom_duplicates:
-            df = df.drop_duplicates(subset=pks)
-            LOG.warning(
-                f"Dropped {n_duplicates} duplicate rows (equivalent geometries)"
-            )
+    # if no primary key provided, use the geometry (and additional hash fields if provided)
+    else:
+        LOG.info(f"Adding hashed key {fdl_primary_key}, based on hash of geometry")
+        df = fcd.add_hash_key(
+            df,
+            new_field=fdl_primary_key,
+            fields=hash_fields,
+            hash_geometry=True,
+            precision=precision,
+        )
+        pks = [fdl_primary_key]
 
     return df
 

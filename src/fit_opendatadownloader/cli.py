@@ -151,10 +151,14 @@ def process(
         # download data from source to a geodataframe (df)
         df = layer.download()
 
-        # clean the data and warn if duplicates are found
-        # Duplicates processing for geometries is based on provided precision value
-        # This fails if primary key + geometry is non-unique
-        df = fdl.clean(df, layer.fields, layer.primary_key, precision=0.1)
+        # clean the data slightly
+        df = fdl.clean(
+            df,
+            fields=layer.fields,
+            primary_key=layer.primary_key,
+            hash_fields=layer.hash_fields,
+            precision=0.1,
+        )
 
         # process and dump to file if "validate" option is not set
         if not validate:
