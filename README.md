@@ -69,6 +69,7 @@ Each config .json file has several tag defining how to handle data for the given
 | `source_layer` |  N                    | Name of layer to use within source (optional, defaults to first layer in file)       |
 | `query`        |  N                    | Query to subset data in source/layer (OGR SQL) (optional, currently only supported for sources where `protocol` is `http`) | 
 | `primary_key`  |  N                    | List of source field(s) used as primary key (optional, must be a subset of `fields`) |
+| `hash_fields`  |  N                    | List of additional source field(s) to add to a synthetic geometry hash based primary key (optional, must be a subset of fields) |
 | `metadata_url` |  N                    | Link to source metadata                                                    |
 
 
