@@ -38,19 +38,18 @@ def parse_config(config_file):
     jsonschema.validate(instance=config, schema=schema)
     LOG.info("Source json is valid")
 
-    # for optional tags, set to None where not provided
-    parsed = config
-    for i, source in enumerate(config):
-        for tag in ["source_layer", "query", "primary_key", "metadata_url"]:
-            if tag not in source.keys():
-                parsed[i][tag] = None
+    sources = [SourceLayer(source) for source in config]
 
-    # validate pk
-    for source in parsed:
-        if source["primary_key"]:
-            if not set(source["primary_key"]).issubset(set(source["fields"])):
+    # validate primary key(s) and hash key(s) are present in fields
+    for source in sources:
+        if source.primary_key:
+            if not set(source.primary_key).issubset(set(source.fields)):
                 raise ValueError(
                     "Specified primary key(s) must be included in fields tag"
                 )
-
-    return [SourceLayer(source) for source in parsed]
+        if source.hash_fields:
+            if not set(source.hash_fields).issubset(set(source.fields)):
+                raise ValueError(
+                    "Specified hash field(s) must be included in fields tag"
+                )
+    return sources
