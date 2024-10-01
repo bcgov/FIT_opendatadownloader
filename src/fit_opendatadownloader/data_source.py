@@ -114,6 +114,11 @@ def clean(
     # standardize column naming
     if df.geometry.name != "geometry":
         df = df.rename_geometry("geometry")
+
+    # set empty hash fields to empty list
+    if not hash_fields:
+        hash_fields = []
+
     cleaned_column_map = {}
     for column in fields + hash_fields:
         cleaned_column_map[column] = re.sub(
