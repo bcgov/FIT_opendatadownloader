@@ -1,38 +1,41 @@
 [
-    {
-        "out_layer": "parks",
-        "source": "https://coquitlam-spatial.s3.us-west-2.amazonaws.com/PRC/GDB/Coquitlam_Parks_GDB.zip",
-        "source_layer": "parks",
-        "protocol": "http",
-        "fields": [
-            "PARKNAME",
-            "ADDRESS",
-            "PARKTYPE",
-            "OWNERSHIP",
-            "AREA_ACRES",
-            "PARK_LEVEL"
-        ],
-        "primary_key": ["PARKNAME", "AREA_ACRES"],
-        "schedule": "Q"
-    },
-    {
-        "out_layer": "roads",
-        "source": "https://coquitlam-spatial.s3.us-west-2.amazonaws.com/Transportation/GDB/Coquitlam_Transportation_GDB.zip",
-        "source_layer": "roads",
-        "protocol": "http",
-        "fields": [
-            "STATUS",
-            "CLASS",
-            "LEFTBEGIN",
-            "LEFTEND",
-            "RIGHTBEGIN",
-            "RIGHTEND",
-            "TRUCKROUTE",
-            "ROADNAME",
-            "ROADTYPE",
-            "FULLNAME"
-        ],
-        "primary_key": ["FULLNAME"],
-        "schedule": "Q"
-    }
+  {
+    "out_layer": "parks",
+    "source": "https://coquitlam-spatial.s3.us-west-2.amazonaws.com/PRC/GDB/Coquitlam_Parks_GDB.zip",
+    "source_layer": "parks",
+    "protocol": "http",
+    "fields": [
+      "PARKNAME",
+      "ADDRESS",
+      "PARKTYPE",
+      "OWNERSHIP",
+      "PARK_LEVEL"
+    ],
+    "hash_fields": [
+      "PARKNAME"
+    ],
+    "schedule": "Q"
+  },
+  {
+    "out_layer": "roads",
+    "source": "https://coquitlam-spatial.s3.us-west-2.amazonaws.com/Transportation/GDB/Coquitlam_Transportation_GDB.zip",
+    "source_layer": "roads",
+    "protocol": "http",
+    "fields": [
+      "STATUS",
+      "CLASS",
+      "LEFTBEGIN",
+      "LEFTEND",
+      "RIGHTBEGIN",
+      "RIGHTEND",
+      "TRUCKROUTE",
+      "ROADNAME",
+      "ROADTYPE",
+      "FULLNAME"
+    ],
+    "primary_key": [
+      "FULLNAME"
+    ],
+    "schedule": "Q"
+  }
 ]

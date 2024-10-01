@@ -8,12 +8,10 @@
       "Park_Name",
       "Park_Use",
       "Type_text",
-      "Location",
-      "acres"
+      "Location"
     ],
-    "primary_key": [
-      "Park_Name",
-      "acres"
+    "hash_fields": [
+      "Park_Name"
     ],
     "schedule": "Q"
   },
