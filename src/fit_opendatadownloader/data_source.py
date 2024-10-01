@@ -1,4 +1,5 @@
 import hashlib
+import json
 import logging
 import os
 import re
@@ -24,7 +25,12 @@ LOG = logging.getLogger(__name__)
 
 class SourceLayer:
     def __init__(self, layer_keys):
-        # attributes for a layer are taken directly from the config keys
+        # initialize object with empty values for all properties present in schema
+        with open("source_schema.json", "r") as f:
+            schema = json.load(f)
+        for key in schema["items"]["properties"]:
+            setattr(self, key, None)
+        # overwrite empty attributes with values from config keys
         if layer_keys is not None:
             for key, value in layer_keys.items():
                 setattr(self, key, value)

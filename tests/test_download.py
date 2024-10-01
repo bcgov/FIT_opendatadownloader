@@ -1,4 +1,7 @@
+import json
+
 import pytest
+
 from jsonschema.exceptions import ValidationError
 
 import fit_opendatadownloader as fdl
@@ -65,6 +68,18 @@ def test_config_esri():
 def test_parse_config(test_config_file):
     layer = fdl.parse_config(test_config_file)[0]
     assert layer.out_layer == "parks"
+
+
+def test_all_keys_present():
+    # read schema document
+    with open("source_schema.json", "r") as f:
+        schema = json.load(f)
+    # create source layer from required keys
+    source_dict = {k: "foo" for k in schema["items"]["required"]}
+    layer = fdl.SourceLayer(source_dict)
+    # assert that all expected attributes are present in sourcelayer object
+    for k in schema["items"]["properties"]:
+        assert hasattr(layer, k)
 
 
 def test_download_file(test_config_file, tmpdir):
