@@ -73,7 +73,7 @@ Each config .json file has several tag defining how to handle data for the given
 | `metadata_url` |  N                    | Link to source metadata                                                    |
 
 
-For the full schema definition, see [`source.schema.json`](source.schema.json).
+For the full schema definition, see [`source.schema.json`](source_schema.json).
 
 ## Development and testing
 
