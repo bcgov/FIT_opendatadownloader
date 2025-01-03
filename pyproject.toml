@@ -38,7 +38,7 @@ test = [
 ]
 
 [project.scripts]
-fit_downloader = "fit_opendatadownloader.cli:cli"
+fit_downloader = "fit_opendatadownloader.fit_downloader:cli"
 
 [project.urls]
 Homepage = "https://github.com/bcgov/fit_opendatadownloader"
@@ -49,3 +49,6 @@ path = "src/fit_opendatadownloader/__init__.py"
 
 [tool.hatch.metadata]
 allow-direct-references = true
+
+[tool.ruff]
+line-length = 100

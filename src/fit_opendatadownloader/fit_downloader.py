@@ -1,21 +1,19 @@
-import logging
 import glob
 import json
+import logging
 import os
-from pathlib import Path
 import re
-import sys
 import shutil
-from urllib.parse import urlparse
+import sys
 import zipfile
+from pathlib import Path
+from urllib.parse import urlparse
 
 import boto3
 import click
-from cligj import verbose_opt, quiet_opt
-import geopandas
+from cligj import quiet_opt, verbose_opt
 
 import fit_opendatadownloader as fdl
-
 
 LOG = logging.getLogger(__name__)
 
@@ -65,7 +63,7 @@ def cli():
 @verbose_opt
 @quiet_opt
 def list_configs(path, schedule, verbose, quiet):
-    """List RD/muni component of all config files present in specified folder"""
+    """List all configs available in specified folder as RD/MUNI"""
     configure_logging((verbose - quiet))
     files = glob.glob(os.path.join(path, "**/*.json"), recursive=True)
     for config_file in files:
@@ -75,9 +73,7 @@ def list_configs(path, schedule, verbose, quiet):
                 config = json.load(f)
             sources = [s for s in config if s["schedule"] == schedule]
             if len(sources) > 0:
-                click.echo(
-                    os.path.splitext(Path(config_file).relative_to("sources"))[0]
-                )
+                click.echo(os.path.splitext(Path(config_file).relative_to("sources"))[0])
         # otherwise just dump all file names
         else:
             click.echo(os.path.splitext(Path(config_file).relative_to("sources"))[0])
@@ -127,7 +123,7 @@ def process(
     verbose,
     quiet,
 ):
-    """For each configured layer - download latest, detect changes, write to file"""
+    """For given config, download data and write to file if changed"""
     configure_logging((verbose - quiet))
 
     # parse config, returning a list of dicts defining layers to process
@@ -182,9 +178,7 @@ def process(
             if bool(re.compile(r"^s3://").match(out_path)):
                 s3_key = urlparse(out_path, allow_fragments=False).path.lstrip("/")
                 s3_client = boto3.client("s3")
-                s3_client.upload_file(
-                    out_file + ".zip", os.environ.get("BUCKET"), s3_key
-                )
+                s3_client.upload_file(out_file + ".zip", os.environ.get("BUCKET"), s3_key)
                 LOG.info(f"layer {layer.out_layer} saved to {s3_key}")
                 os.unlink(out_file + ".zip")
 
