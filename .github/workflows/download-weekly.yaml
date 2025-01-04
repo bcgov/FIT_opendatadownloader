@@ -47,4 +47,4 @@ jobs:
           python -m pip install .
       - name: Process source
         run: |
-          fit_downloader process -v --out-path s3://$BUCKET/Change_Detection/${{ matrix.arg }} -s W sources/${{ matrix.arg }}.json
+          fit_downloader process -v --prefix s3://$BUCKET/Change_Detection/${{ matrix.arg }} -s W sources/${{ matrix.arg }}.json

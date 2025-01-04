@@ -2,7 +2,6 @@ import glob
 import json
 import logging
 import os
-import re
 import shutil
 import sys
 import zipfile
@@ -11,6 +10,9 @@ from urllib.parse import urlparse
 
 import boto3
 import click
+import fit_changedetector as fcd
+import geopandas
+from botocore.exceptions import ClientError
 from cligj import quiet_opt, verbose_opt
 
 import fit_opendatadownloader as fdl
@@ -44,6 +46,20 @@ def zip_gdb(folder_path, zip_path):
                 relative_path = os.path.relpath(file_path, folder_path)
                 # Add file to the zip file
                 zipf.write(file_path, relative_path)
+
+
+def s3_key_exists(s3_client, s3_key):
+    """Return True if s3 key exists, False if it does not"""
+    try:
+        s3_client.head_object(Bucket=os.environ.get("BUCKET"), Key=s3_key)
+        return True  # If no exception, the object exists
+    except ClientError as e:
+        # If the error code is '404', the object doesn't exist
+        if e.response["Error"]["Code"] == "NoSuchKey":
+            return False
+        else:
+            LOG.error(f"Error checking object: {e}")
+            return False
 
 
 @click.group()
@@ -87,17 +103,9 @@ def list_configs(path, schedule, verbose, quiet):
     help="Layer to process in provided config.",
 )
 @click.option(
-    "--out-path",
-    "-o",
-    type=click.Path(),
-    default=".",
-    help="Output path or s3 prefix.",
-)
-@click.option(
-    "--force",
-    "-f",
-    is_flag=True,
-    help="Force download to out-path without running change detection.",
+    "--prefix",
+    "-p",
+    help="S3 prefix.",
 )
 @click.option(
     "--schedule",
@@ -116,8 +124,7 @@ def list_configs(path, schedule, verbose, quiet):
 def process(
     config_file,
     layer,
-    out_path,
-    force,
+    prefix,
     schedule,
     validate,
     verbose,
@@ -152,52 +159,56 @@ def process(
             df,
             fields=layer.fields,
             primary_key=layer.primary_key,
+            fdl_primary_key="fdl_load_id",
             hash_fields=layer.hash_fields,
             precision=0.1,
         )
+        # if no primary key provided, use "fdl_primary_key"
+        if layer.primary_key:
+            primary_key = layer.primary_key
+        else:
+            primary_key = "fdl_load_id"
 
         # process and dump to file if "validate" option is not set
         if not validate:
-            # write to gdb in cwd
+            # write download to zipped gdb in cwd
             out_file = layer.out_layer + ".gdb"
             df.to_file(out_file, driver="OpenFileGDB", layer=layer.out_layer)
-
-            # run change detection unless otherwise specified
-            # if not force:
-            # - get previous version (if present)
-            # - compare to previous version
-            # - if changes detected, modify output path to include <fcd_YYYYMMDD> prefix,
-            # - write diffs / reports
-
-            # then write data
-
-            # zip and write to target location
             zip_gdb(out_file, out_file + ".zip")
+            # derive output path
+            s3_key = (
+                urlparse(prefix, allow_fragments=False).path.lstrip("/") + "/" + out_file + ".zip"
+            )
+            # create s3 client
+            s3_client = boto3.client("s3")
 
-            # copy to s3 if out_path prefix is s3://
-            if bool(re.compile(r"^s3://").match(out_path)):
-                s3_key = urlparse(out_path, allow_fragments=False).path.lstrip("/")
-                s3_client = boto3.client("s3")
+            # default to writing
+            write = True
+
+            # run change detection if out file/ s3 key already exists
+            if s3_key_exists(s3_client, s3_key):
+                # read from existing file on s3
+                df2 = geopandas.read_file(os.path.join("s3://", os.environ.get("BUCKET"), s3_key))
+                # run change detection
+                diff = fcd.gdf_diff(df2, df, primary_key=primary_key, return_type="gdf")
+                # do not write new data if nothing has changed
+                if len(diff["UNCHANGED"]) == len(df2) == len(df):
+                    LOG.info(f"Data unchanged {s3_key}")
+                    write = False
+                else:
+                    LOG.info("Changes found")
+
+                    # todo // write changes to log
+
+                    # todo // alert users that new data is available
+
+            if write:
+                LOG.info(f"Writing {layer.out_layer} to {s3_key}")
                 s3_client.upload_file(out_file + ".zip", os.environ.get("BUCKET"), s3_key)
-                LOG.info(f"layer {layer.out_layer} saved to {s3_key}")
-                os.unlink(out_file + ".zip")
-
-            # alternatively, move to local path
-            elif out_path != ".":
-                Path(out_path).mkdir(parents=True, exist_ok=True)
-                destination = os.path.join(
-                    out_path,
-                    out_file + ".zip",
-                )
-                os.rename(out_file + ".zip", destination)
-                LOG.info(f"layer {layer.out_layer} saved to {destination}")
-
-            # do nothing if out_path is empty
-            elif out_path == ".":
-                LOG.info(f"layer {layer.out_layer} saved to {out_file}.zip")
 
             # cleanup
             shutil.rmtree(out_file)
+            os.unlink(out_file + ".zip")
 
 
 if __name__ == "__main__":

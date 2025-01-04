@@ -32,7 +32,7 @@ Usage: fit_downloader process [OPTIONS] CONFIG_FILE
 
 Options:
   -l, --layer TEXT            Layer to process in provided config.
-  -o, --out-path PATH         Output path or s3 prefix.
+  -p, --prefix                S3 prefix.
   -f, --force                 Force download to out-path without running
                               change detection.
   -s, --schedule [D|W|M|Q|A]  Process only sources with given schedule tag.
@@ -49,9 +49,11 @@ Examples:
 	
 		fit_downloader process -vV example_config.json
 
-2. Download and process layers defined in `example_config.json` configuration file, saving to `/my/output/path` on the local filesystem:
+2. Process data defined in `sources/CAPRD/victoria.json` configuration file, saving to `s3://$BUCKET/CAPRD/victoria`:
 
-		fit_downloader process -o my/output/path example_config.json 
+		fit_downloader process -v \
+		  --prefix s3://$BUCKET/Change_Detection/CAPRD/victoria \
+		  sources/CAPRD/victoria.json 
 
 
 ## Configuration
