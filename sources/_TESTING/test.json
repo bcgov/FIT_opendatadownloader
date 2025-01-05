@@ -1,0 +1,17 @@
+[
+  {
+    "out_layer": "parks",
+    "source": "https://raw.githubusercontent.com/bcgov/FIT_changedetector/refs/heads/main/tests/data/parks_a.geojson",
+    "source_layer": "parks",
+    "protocol": "http",
+    "fields": [
+      "id",
+      "park_name",
+      "parkclasscode"
+    ],
+    "primary_key": [
+      "id"
+    ],
+    "schedule": "Q"
+  }
+]

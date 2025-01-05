@@ -48,3 +48,8 @@ jobs:
       - name: Process source
         run: |
           fit_downloader process -v --prefix s3://$BUCKET/Change_Detection/${{ matrix.arg }} -s Q sources/${{ matrix.arg }}.json
+          for filename in changes_*.json; do
+             substring="${filename#*_}"
+             substring="${substring%.*}"
+             gh issue create -a "@me" --label "data update" --title "${{ matrix.arg }} $substring updated" -b $(cat $filename)
+          done

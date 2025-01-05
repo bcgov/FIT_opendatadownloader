@@ -278,7 +278,9 @@ def process(
                     )
                     os.unlink(changes_csv_file)
 
-                    # todo // alert users that new data is available
+                    # also dump change summary to local json for creating GH issue
+                    with open("changes_" + layer.out_layer + ".json", "w") as f:
+                        json.dump(change_report, f, indent=2)
 
             if write:
                 LOG.info(f"{s3_key}: writing to object storage")
