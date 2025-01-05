@@ -1,14 +1,13 @@
-import hashlib
 import json
 import logging
 import os
 import re
 
 import bcdata
-from esridump.dumper import EsriDumper
+import fit_changedetector as fcd
 import geopandas
+from esridump.dumper import EsriDumper
 from geopandas import GeoDataFrame
-
 from pyproj import CRS
 from shapely.geometry.linestring import LineString
 from shapely.geometry.multilinestring import MultiLineString
@@ -18,7 +17,6 @@ from shapely.geometry.point import Point
 from shapely.geometry.polygon import Polygon
 
 import fit_opendatadownloader as fdl
-import fit_changedetector as fcd
 
 LOG = logging.getLogger(__name__)
 
@@ -41,9 +39,7 @@ class SourceLayer:
         # download data from esri rest api endpoint
         if self.protocol == "esri":
             df = GeoDataFrame.from_features(
-                features=(
-                    EsriDumper(self.source, fields=self.fields, parent_logger=LOG)
-                ),
+                features=(EsriDumper(self.source, fields=self.fields, parent_logger=LOG)),
                 crs=4326,
             )
 
@@ -121,9 +117,7 @@ def clean(
 
     cleaned_column_map = {}
     for column in fields + hash_fields:
-        cleaned_column_map[column] = re.sub(
-            r"\W+", "", column.lower().strip().replace(" ", "_")
-        )
+        cleaned_column_map[column] = re.sub(r"\W+", "", column.lower().strip().replace(" ", "_"))
     df = df.rename(columns=cleaned_column_map)
 
     # assign cleaned column names to fields list
@@ -153,9 +147,7 @@ def clean(
         LOG.info(
             f"Adding hashed key {fdl_primary_key}, based on hash of provided primary_key {','.join(pks)}"
         )
-        df = fcd.add_hash_key(
-            df, new_field=fdl_primary_key, fields=pks, hash_geometry=False
-        )
+        df = fcd.add_hash_key(df, new_field=fdl_primary_key, fields=pks, hash_geometry=False)
         pks = [fdl_primary_key]
 
     # if no primary key provided, use the geometry (and additional hash fields if provided)
