@@ -1,3 +1,4 @@
+import csv
 import glob
 import json
 import logging
@@ -55,7 +56,8 @@ def s3_key_exists(s3_client, s3_key):
         return True  # If no exception, the object exists
     except ClientError as e:
         # If the error code is '404', the object doesn't exist
-        if e.response["Error"]["Code"] == "NoSuchKey":
+        if e.response["Error"]["Code"] == "404":
+            LOG.debug(f"File does not exist: {e}")
             return False
         else:
             LOG.error(f"Error checking object: {e}")
@@ -154,7 +156,7 @@ def process(
         # download data from source to a geodataframe (df)
         df = layer.download()
 
-        # clean the data slightly
+        # clean the data slightly, add synthetic primary key
         df = fdl.clean(
             df,
             fields=layer.fields,
@@ -163,11 +165,6 @@ def process(
             hash_fields=layer.hash_fields,
             precision=0.1,
         )
-        # if no primary key provided, use "fdl_primary_key"
-        if layer.primary_key:
-            primary_key = layer.primary_key
-        else:
-            primary_key = "fdl_load_id"
 
         # process and dump to file if "validate" option is not set
         if not validate:
@@ -190,20 +187,101 @@ def process(
                 # read from existing file on s3
                 df2 = geopandas.read_file(os.path.join("s3://", os.environ.get("BUCKET"), s3_key))
                 # run change detection
-                diff = fcd.gdf_diff(df2, df, primary_key=primary_key, return_type="gdf")
+                diff = fcd.gdf_diff(
+                    df2,
+                    df,
+                    primary_key="fdl_load_id",
+                    suffix_a="original",
+                    suffix_b="new",
+                    return_type="gdf",
+                )
                 # do not write new data if nothing has changed
                 if len(diff["UNCHANGED"]) == len(df2) == len(df):
-                    LOG.info(f"Data unchanged {s3_key}")
+                    LOG.info(f"{s3_key}: data unchanged")
                     write = False
                 else:
-                    LOG.info("Changes found")
+                    # write changeset
+                    changes_file = layer.out_layer + "_changes.gdb"
+                    # derive output path
+                    changes_s3_key = (
+                        urlparse(prefix, allow_fragments=False).path.lstrip("/")
+                        + "/"
+                        + changes_file
+                        + ".zip"
+                    )
+                    LOG.info(f"{s3_key}: changes found, creating changes .gdb")
+                    logging.getLogger("pyogrio._io").setLevel(
+                        logging.WARNING
+                    )  # squelch pyogrio INFO logs
+                    mode = "w"
+                    for key in [
+                        "NEW",
+                        "DELETED",
+                        "MODIFIED_BOTH",
+                        "MODIFIED_ATTR",
+                        "MODIFIED_GEOM",
+                    ]:
+                        if len(diff[key]) > 0:
+                            if "geometry" not in diff[key].columns:
+                                diff[key] = geopandas.GeoDataFrame(
+                                    diff[key], geometry=geopandas.GeoSeries([None] * len(diff[key]))
+                                )
+                            diff[key].to_file(
+                                changes_file, driver="OpenFileGDB", layer=key, mode=mode
+                            )
+                            mode = "a"
+                    zip_gdb(changes_file, changes_file + ".zip")
+                    LOG.info(f"{changes_s3_key}: writing to object storage")
+                    s3_client.upload_file(
+                        changes_file + ".zip", os.environ.get("BUCKET"), changes_s3_key
+                    )
+                    shutil.rmtree(changes_file)
+                    os.unlink(changes_file + ".zip")
 
-                    # todo // write changes to log
+                    # build the report
+                    change_report = {}
+                    change_report["record_count_original"] = len(df)
+                    change_report["record_count_new"] = len(df2)
+                    change_report["record_count_difference"] = len(df2) - len(df)
+                    change_report["record_count_difference_pct"] = round(
+                        ((len(df2) - len(df)) / len(df)) * 100, 2
+                    )
+                    change_report["n_unchanged"] = len(diff["UNCHANGED"])
+                    change_report["n_deletions"] = len(diff["DELETED"])
+                    change_report["n_additions"] = len(diff["NEW"])
+                    change_report["n_modified"] = (
+                        len(diff["MODIFIED_BOTH"])
+                        + len(diff["MODIFIED_ATTR"])
+                        + len(diff["MODIFIED_GEOM"])
+                    )
+                    change_report["n_modified_spatial_only"] = len(diff["MODIFIED_GEOM"])
+                    change_report["n_modified_spatial_attributes"] = len(diff["MODIFIED_BOTH"])
+                    change_report["n_modified_attributes_only"] = len(diff["MODIFIED_ATTR"])
+
+                    # write to csv
+                    changes_csv_file = layer.out_layer + "_changes.csv"
+                    with open(changes_csv_file, "w") as f:
+                        writer = csv.writer(f)
+                        writer.writerow(["key", "value"])
+                        for key, value in change_report.items():
+                            writer.writerow([key, value])
+
+                    # upload to s3
+                    changes_csv_s3_key = (
+                        urlparse(prefix, allow_fragments=False).path.lstrip("/")
+                        + "/"
+                        + changes_csv_file
+                    )
+                    LOG.info(f"{changes_csv_s3_key}: writing to object storage")
+                    s3_client.upload_file(
+                        changes_csv_file, os.environ.get("BUCKET"), changes_csv_s3_key
+                    )
+                    os.unlink(changes_csv_file)
 
                     # todo // alert users that new data is available
 
             if write:
-                LOG.info(f"Writing {layer.out_layer} to {s3_key}")
+                LOG.info(f"{s3_key}: writing to object storage")
                 s3_client.upload_file(out_file + ".zip", os.environ.get("BUCKET"), s3_key)
 
             # cleanup
