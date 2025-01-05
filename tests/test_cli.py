@@ -7,19 +7,20 @@ from click.testing import CliRunner
 
 from fit_opendatadownloader.fit_downloader import cli, s3_key_exists
 
-_s3 = boto3.client("s3")
-
 
 @pytest.fixture(autouse=True)
 def cleanup():
+    s3_client = boto3.client("s3")
     yield
     # after every test, delete everything in bucket with prefix /Change_Detection/TEST/test/
-    response = _s3.list_objects_v2(
+    response = s3_client.list_objects_v2(
         Bucket=os.environ.get("BUCKET"), Prefix="Change_Detection/TEST/test/"
     )
     if "Contents" in response:
         objects_to_delete = [{"Key": obj["Key"]} for obj in response["Contents"]]
-        _s3.delete_objects(Bucket=os.environ.get("BUCKET"), Delete={"Objects": objects_to_delete})
+        s3_client.delete_objects(
+            Bucket=os.environ.get("BUCKET"), Delete={"Objects": objects_to_delete}
+        )
 
 
 def test_fresh_download():
@@ -74,8 +75,9 @@ def test_download_unchanged():
         os.path.join("s3://", os.environ.get("BUCKET"), "Change_Detection/TEST/test/parks.gdb.zip")
     )
     assert len(df) == 8
-    assert s3_key_exists(_s3, "Change_Detection/TEST/test/parks_changes.gdb.zip") is False
-    assert s3_key_exists(_s3, "Change_Detection/TEST/test/parks_changes.csv") is False
+    s3_client = boto3.client("s3")
+    assert s3_key_exists(s3_client, "Change_Detection/TEST/test/parks_changes.gdb.zip") is False
+    assert s3_key_exists(s3_client, "Change_Detection/TEST/test/parks_changes.csv") is False
 
 
 def test_download_changed():
@@ -109,7 +111,8 @@ def test_download_changed():
         os.path.join("s3://", os.environ.get("BUCKET"), "Change_Detection/TEST/test/parks.gdb.zip")
     )
     assert len(df) == 8
-    assert s3_key_exists(_s3, "Change_Detection/TEST/test/parks_changes.gdb.zip")
+    s3_client = boto3.client("s3")
+    assert s3_key_exists(s3_client, "Change_Detection/TEST/test/parks_changes.gdb.zip")
     df = geopandas.read_file(
         os.path.join(
             "s3://", os.environ.get("BUCKET"), "Change_Detection/TEST/test/parks_changes.gdb.zip"
