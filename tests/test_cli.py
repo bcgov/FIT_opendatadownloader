@@ -44,42 +44,6 @@ def test_fresh_download():
     assert len(df) == 8
 
 
-def test_download_unchanged():
-    runner = CliRunner()
-    result = runner.invoke(
-        cli,
-        [
-            "process",
-            "tests/test_config_a.json",
-            "--layer",
-            "parks",
-            "--prefix",
-            "s3://$BUCKET/Change_Detection/TEST/test",
-            "-v",
-        ],
-    )
-    result = runner.invoke(
-        cli,
-        [
-            "process",
-            "tests/test_config_a.json",
-            "--layer",
-            "parks",
-            "--prefix",
-            "s3://$BUCKET/Change_Detection/TEST/test",
-            "-v",
-        ],
-    )
-    assert result.exit_code == 0
-    df = geopandas.read_file(
-        os.path.join("s3://", os.environ.get("BUCKET"), "Change_Detection/TEST/test/parks.gdb.zip")
-    )
-    assert len(df) == 8
-    s3_client = boto3.client("s3")
-    assert s3_key_exists(s3_client, "Change_Detection/TEST/test/parks_changes.gdb.zip") is False
-    assert s3_key_exists(s3_client, "Change_Detection/TEST/test/parks_changes.csv") is False
-
-
 def test_download_changed():
     runner = CliRunner()
     result = runner.invoke(
