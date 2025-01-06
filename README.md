@@ -102,4 +102,4 @@ To build:
 
 Drop in to a bash session:
 
-	$ docker run --rm -it -v ./:/home/fit_opendatadownloader fit_opendatadownloader  bash
+	$ docker run --rm -it -v ./:/home/fit_opendatadownloader fit_opendatadownloader bash

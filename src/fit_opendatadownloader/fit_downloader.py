@@ -166,6 +166,10 @@ def process(
             precision=0.1,
         )
 
+        # to ensure type consistency, round trip to gdb and back to geopandas
+        df.to_file("temp.gdb", driver="OpenFileGDB", layer=layer.out_layer, mode="w")
+        df = geopandas.read_file("temp.gdb", layer=layer.out_layer)
+
         # process and dump to file if "validate" option is not set
         if not validate:
             # write download to zipped gdb in cwd
@@ -289,6 +293,7 @@ def process(
             # cleanup
             shutil.rmtree(out_file)
             os.unlink(out_file + ".zip")
+            shutil.rmtree("temp.gdb")
 
 
 if __name__ == "__main__":
