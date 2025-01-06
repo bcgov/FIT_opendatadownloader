@@ -48,11 +48,10 @@ jobs:
       - name: Process sources
         run: |
           fit_downloader process -v --prefix s3://$BUCKET/Change_Detection/${{ matrix.arg }} -s Q sources/${{ matrix.arg }}.json
-          echo "::set-output name=issues_file::$(pwd)/issues.json"
+          echo "issues_file=issues.json" >> "$GITHUB_ENV"
       - name: Create GitHub Issues
         run: |
           # Read the JSON file
-          issues_file="${{ steps.process-sources.outputs.issues_file }}"
           # Loop through the JSON array and create issues
           jq -c '.[]' "$issues_file" | while IFS= read -r issue; do
             TITLE=$(echo "$issue" | jq -r '.title')
