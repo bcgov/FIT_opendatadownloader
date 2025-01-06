@@ -12,9 +12,9 @@ from fit_opendatadownloader.fit_downloader import cli, s3_key_exists
 def cleanup():
     s3_client = boto3.client("s3")
     yield
-    # after every test, delete everything in bucket with prefix /Change_Detection/_TEST/test/
+    # after every test, delete everything in bucket with prefix /Change_Detection/_TESTING/test/
     response = s3_client.list_objects_v2(
-        Bucket=os.environ.get("BUCKET"), Prefix="Change_Detection/_TEST/test/"
+        Bucket=os.environ.get("BUCKET"), Prefix="Change_Detection/_TESTING/test/"
     )
     if "Contents" in response:
         objects_to_delete = [{"Key": obj["Key"]} for obj in response["Contents"]]
@@ -33,13 +33,15 @@ def test_fresh_download():
             "--layer",
             "parks",
             "--prefix",
-            "s3://$BUCKET/Change_Detection/_TEST/test",
+            "s3://$BUCKET/Change_Detection/_TESTING/test",
             "-v",
         ],
     )
     assert result.exit_code == 0
     df = geopandas.read_file(
-        os.path.join("s3://", os.environ.get("BUCKET"), "Change_Detection/_TEST/test/parks.gdb.zip")
+        os.path.join(
+            "s3://", os.environ.get("BUCKET"), "Change_Detection/_TESTING/test/parks.gdb.zip"
+        )
     )
     assert len(df) == 8
 
@@ -54,7 +56,7 @@ def test_download_changed():
             "--layer",
             "parks",
             "--prefix",
-            "s3://$BUCKET/Change_Detection/_TEST/test",
+            "s3://$BUCKET/Change_Detection/_TESTING/test",
             "-v",
         ],
     )
@@ -66,27 +68,33 @@ def test_download_changed():
             "--layer",
             "parks",
             "--prefix",
-            "s3://$BUCKET/Change_Detection/_TEST/test",
+            "s3://$BUCKET/Change_Detection/_TESTING/test",
             "-v",
         ],
     )
     assert result.exit_code == 0
     df = geopandas.read_file(
-        os.path.join("s3://", os.environ.get("BUCKET"), "Change_Detection/_TEST/test/parks.gdb.zip")
+        os.path.join(
+            "s3://", os.environ.get("BUCKET"), "Change_Detection/_TESTING/test/parks.gdb.zip"
+        )
     )
     assert len(df) == 8
     s3_client = boto3.client("s3")
-    assert s3_key_exists(s3_client, "Change_Detection/_TEST/test/parks_changes.gdb.zip")
+    assert s3_key_exists(s3_client, "Change_Detection/_TESTING/test/parks_changes.gdb.zip")
     df = geopandas.read_file(
         os.path.join(
-            "s3://", os.environ.get("BUCKET"), "Change_Detection/_TEST/test/parks_changes.gdb.zip"
+            "s3://",
+            os.environ.get("BUCKET"),
+            "Change_Detection/_TESTING/test/parks_changes.gdb.zip",
         ),
         layer="NEW",
     )
     assert len(df) == 1
     df = geopandas.read_file(
         os.path.join(
-            "s3://", os.environ.get("BUCKET"), "Change_Detection/_TEST/test/parks_changes.gdb.zip"
+            "s3://",
+            os.environ.get("BUCKET"),
+            "Change_Detection/_TESTING/test/parks_changes.gdb.zip",
         ),
         layer="DELETED",
     )
