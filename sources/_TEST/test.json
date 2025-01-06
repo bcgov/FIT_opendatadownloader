@@ -1,7 +1,7 @@
 [
   {
     "out_layer": "parks",
-    "source": "https://raw.githubusercontent.com/bcgov/FIT_changedetector/refs/heads/main/tests/data/parks_a.geojson",
+    "source": "https://raw.githubusercontent.com/bcgov/FIT_changedetector/refs/heads/main/tests/data/parks_b.geojson",
     "source_layer": "parks",
     "protocol": "http",
     "fields": [

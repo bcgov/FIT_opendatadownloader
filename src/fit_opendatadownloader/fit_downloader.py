@@ -270,7 +270,7 @@ def process(
                     change_reports.append(
                         {
                             "title": "Data changes: " + os.path.join(rd_muni, layer.out_layer),
-                            "body": change_report,
+                            "body": json.dumps(change_report),
                         }
                     )
                     # write to csv for upload to s3
