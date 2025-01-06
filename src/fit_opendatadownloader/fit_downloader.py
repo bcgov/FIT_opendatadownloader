@@ -84,7 +84,8 @@ def list_configs(path, schedule, verbose, quiet):
     """List all configs available in specified folder as RD/MUNI"""
     configure_logging((verbose - quiet))
     # note that folders prefixed with _ are ignored
-    files = glob.glob(os.path.join(path, "[!_]**/*.json"), recursive=True)
+    # files = glob.glob(os.path.join(path, "[!_]**/*.json"), recursive=True)
+    files = glob.glob(os.path.join(path, "**/*.json"), recursive=True)
     for config_file in files:
         # parse schedule if specified
         if schedule:
@@ -153,6 +154,7 @@ def process(
             LOG.warning(f"No source with schedule={schedule} found in {config_file}")
 
     # process all layers defined in source config
+    change_reports = []
     for layer in layers:
         # download data from source to a geodataframe (df)
         df = layer.download()
@@ -263,7 +265,15 @@ def process(
                     change_report["n_modified_spatial_attributes"] = len(diff["MODIFIED_BOTH"])
                     change_report["n_modified_attributes_only"] = len(diff["MODIFIED_ATTR"])
 
-                    # write to csv
+                    # append change report to list of all changes
+                    rd_muni = prefix.split("Change_Detection/")[1]
+                    change_reports.append(
+                        {
+                            "title": "Data changes: " + os.path.join(rd_muni, layer.out_layer),
+                            "body": change_report,
+                        }
+                    )
+                    # write to csv for upload to s3
                     changes_csv_file = layer.out_layer + "_changes.csv"
                     with open(changes_csv_file, "w") as f:
                         writer = csv.writer(f)
@@ -283,13 +293,13 @@ def process(
                     )
                     os.unlink(changes_csv_file)
 
-                    # also dump change summary to local json for creating GH issue
-                    with open("changes_" + layer.out_layer + ".json", "w") as f:
-                        json.dump(change_report, f, indent=2)
-
             if write:
                 LOG.info(f"{s3_key}: writing to object storage")
                 s3_client.upload_file(out_file + ".zip", os.environ.get("BUCKET"), s3_key)
+
+            # dump change summary to local json for creating GH issues
+            with open("issues.json", "w") as f:
+                json.dump(change_reports, f, indent=2)
 
             # cleanup
             shutil.rmtree(out_file)
