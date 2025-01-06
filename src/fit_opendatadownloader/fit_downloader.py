@@ -83,7 +83,7 @@ def cli():
 def list_configs(path, schedule, verbose, quiet):
     """List all configs available in specified folder as RD/MUNI"""
     configure_logging((verbose - quiet))
-    files = glob.glob(os.path.join(path, "**/*.json"), recursive=True)
+    files = glob.glob(os.path.join(path, "[!_]**/*.json"), recursive=True)
     for config_file in files:
         # parse schedule if specified
         if schedule:
