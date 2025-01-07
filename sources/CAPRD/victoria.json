@@ -26,9 +26,6 @@
       "AliasName",
       "StreetSegmentID"
     ],
-    "schedule": "Q",
-    "primary_key": [
-      "StreetSegmentID"
-    ]
+    "schedule": "Q"
   }
 ]

@@ -33,9 +33,6 @@
       "ROADTYPE",
       "FULLNAME"
     ],
-    "primary_key": [
-      "FULLNAME"
-    ],
     "schedule": "Q"
   }
 ]

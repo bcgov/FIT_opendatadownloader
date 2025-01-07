@@ -27,9 +27,6 @@
       "Agency_Functional_Class",
       "TruckRoute"
     ],
-    "schedule": "Q",
-    "primary_key": [
-      "FACILITYID"
-    ]
+    "schedule": "Q"
   }
 ]
