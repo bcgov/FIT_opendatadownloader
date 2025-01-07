@@ -19,6 +19,9 @@
     "out_layer": "roads",
     "source": "https://services3.arcgis.com/PwS5hVLYsEN2U36s/ArcGIS/rest/services/RoadCentrelines/FeatureServer/0",
     "protocol": "esri",
+    "hash_fields": [
+      "FACILITYID"
+    ],
     "fields": [
       "FACILITYID",
       "Street_Name",

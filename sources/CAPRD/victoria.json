@@ -26,6 +26,9 @@
       "AliasName",
       "StreetSegmentID"
     ],
+    "hash_fields": [
+      "StreetSegmentID"
+    ],
     "schedule": "Q"
   }
 ]

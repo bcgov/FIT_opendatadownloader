@@ -247,9 +247,9 @@ def process(
 
                     # build the report
                     change_report = {}
-                    change_report["record_count_original"] = len(df)
-                    change_report["record_count_new"] = len(df2)
-                    change_report["record_count_difference"] = len(df2) - len(df)
+                    change_report["record_count_original"] = len(df2)
+                    change_report["record_count_new"] = len(df)
+                    change_report["record_count_difference"] = len(df) - len(df2)
                     change_report["record_count_difference_pct"] = round(
                         ((len(df2) - len(df)) / len(df)) * 100, 2
                     )
