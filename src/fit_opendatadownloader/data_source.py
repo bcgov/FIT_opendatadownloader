@@ -133,6 +133,7 @@ def clean(
 
     # Validate primary keys, they must be unique
     pks = []
+    duplicates = []
     if primary_key:
         # swap provided pk names to cleaned column names
         pks = [cleaned_column_map[k] for k in primary_key]
@@ -159,10 +160,25 @@ def clean(
             fields=hash_fields,
             hash_geometry=True,
             precision=precision,
+            allow_duplicates=True,
         )
         pks = [fdl_primary_key]
 
-    return df
+        # if duplicates are present in the hash key:
+        #  - drop the duplicates
+        #  - note the duplicate data in a separate data structure
+        if len(df) != len(df[fdl_primary_key].drop_duplicates()) and drop_geom_duplicates:
+            dup_fields = "/".join(["geometry"] + hash_fields)
+            LOG.info(f"Duplicate {dup_fields} found when hashing, dropping duplicate rows")
+            df["_duplicated_"] = df.duplicated(keep=False, subset=[fdl_primary_key])
+            duplicates = (
+                df[df["_duplicated_"]][[fdl_primary_key] + fields]
+                .sort_values(by=[fdl_primary_key])
+                .to_dict("records")
+            )
+            df = df.drop_duplicates(subset=[fdl_primary_key])
+
+    return (df, duplicates)
 
 
 def standardize_spatial_types(df):

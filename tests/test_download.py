@@ -1,7 +1,6 @@
 import json
 
 import pytest
-
 from jsonschema.exceptions import ValidationError
 
 import fit_opendatadownloader as fdl
@@ -154,9 +153,7 @@ def test_clean_columns():
     ]
     layer = fdl.parse_config(sources)[0]
     df = layer.download()
-    df = fdl.clean(
-        df, fields=layer.fields, primary_key=layer.primary_key, precision=0.1
-    )
+    df = fdl.clean(df, fields=layer.fields, primary_key=layer.primary_key, precision=0.1)[0]
     assert "airport_name_" in df.columns
 
 
@@ -182,7 +179,7 @@ def test_hash_pk():
     ]
     layer = fdl.parse_config(sources)[0]
     df = layer.download()
-    df = fdl.clean(df, fields=layer.fields, precision=0.1)
+    df = fdl.clean(df, fields=layer.fields, precision=0.1)[0]
     assert df["fdl_load_id"].iloc[0] == "597b8d8bef757cb12fec15ce027fb2c6f84775d7"
 
 
@@ -200,9 +197,7 @@ def test_mixed_types():
     ]
     layer = fdl.parse_config(sources)[0]
     df = layer.download()
-    df = fdl.clean(
-        df, fields=layer.fields, primary_key=layer.primary_key, precision=0.1
-    )
+    df = fdl.clean(df, fields=layer.fields, primary_key=layer.primary_key, precision=0.1)[0]
     assert [t.upper() for t in df.geometry.geom_type.unique()] == ["MULTIPOINT"]
 
 
@@ -224,28 +219,26 @@ def test_duplicate_pk():
     layer = fdl.parse_config(sources)[0]
     df = layer.download()
     with pytest.raises(ValueError):
-        df = fdl.clean(
-            df, fields=layer.fields, primary_key=layer.primary_key, precision=0.1
-        )
+        df = fdl.clean(df, fields=layer.fields, primary_key=layer.primary_key, precision=0.1)[0]
 
 
 def test_duplicate_geom():
     sources = [
         {
             "out_layer": "parks",
-            "source": "tests/data/dups.geojson",
+            "source": "tests/data/dups_geom.json",
             "protocol": "http",
             "fields": [
-                "SOURCE_DATA_ID",
+                "description",
             ],
             "schedule": "Q",
         }
     ]
     layer = fdl.parse_config(sources)[0]
     df = layer.download()
-    df.at[1, "geometry"] = df.at[0, "geometry"]
-    with pytest.raises(ValueError):
-        df = fdl.clean(df, fields=layer.fields, precision=0.1)
+    df, duplicates = fdl.clean(df, fields=layer.fields, precision=0.1, drop_geom_duplicates=True)
+    assert len(duplicates) == 2
+    assert duplicates[1]["description"] == "heliport_dup2"
 
 
 def test_hash_fields():
@@ -263,10 +256,6 @@ def test_hash_fields():
     df = layer.download()
     df.at[1, "geometry"] = df.at[0, "geometry"]
     assert (
-        len(
-            fdl.clean(
-                df, fields=layer.fields, hash_fields=layer.hash_fields, precision=0.1
-            )
-        )
+        len(fdl.clean(df, fields=layer.fields, hash_fields=layer.hash_fields, precision=0.1)[0])
         == 2
     )

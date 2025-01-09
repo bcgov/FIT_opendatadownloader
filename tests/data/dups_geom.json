@@ -1,0 +1,42 @@
+{
+  "type": "FeatureCollection",
+  "name": "airports",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:EPSG::3005"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "airport_name": "Victoria Harbour (Camel Point) Heliport",
+        "description": "heliport_dup1",
+        "locality": "Victoria"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1193726.6228300119,
+          381604.0698628168
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "airport_name": "Victoria Harbour (Camel Point) Heliport",
+        "description": "heliport_dup2",
+        "locality": "Victoria"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1193726.6228300119,
+          381604.0698628168
+        ]
+      }
+    }
+  ]
+}

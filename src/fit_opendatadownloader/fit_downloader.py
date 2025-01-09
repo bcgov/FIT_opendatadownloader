@@ -159,14 +159,18 @@ def process(
         # download data from source to a geodataframe (df)
         df = layer.download()
 
-        # clean the data slightly, add synthetic primary key
-        df = fdl.clean(
+        # Clean the data slightly
+        # - add synthetic primary key
+        # - fail if provided primary key is not unique
+        # - if no pk provided, delete duplicate geometries (or geometry + hash field)
+        df, duplicates = fdl.clean(
             df,
             fields=layer.fields,
             primary_key=layer.primary_key,
             fdl_primary_key="fdl_load_id",
             hash_fields=layer.hash_fields,
             precision=0.1,
+            drop_geom_duplicates=True,
         )
 
         # to ensure type consistency, round trip to gdb and back to geopandas
@@ -189,7 +193,7 @@ def process(
             # default to writing
             write = True
 
-            # run change detection if out file/ s3 key already exists
+            # run change detection if out file / s3 key already exists
             if s3_key_exists(s3_client, s3_key):
                 # read from existing file on s3
                 df2 = geopandas.read_file(os.path.join("s3://", os.environ.get("BUCKET"), s3_key))
@@ -265,6 +269,9 @@ def process(
                     change_report["n_modified_spatial_attributes"] = len(diff["MODIFIED_BOTH"])
                     change_report["n_modified_attributes_only"] = len(diff["MODIFIED_ATTR"])
 
+                    change_report["n_duplicates"] = len(duplicates)
+                    change_report["duplicate_ids"] = ",".join(duplicates)
+
                     # append change report to list of all changes
                     rd_muni = prefix.split("Change_Detection/")[1]
                     change_reports.append(
@@ -298,6 +305,23 @@ def process(
             if write:
                 LOG.info(f"{s3_key}: writing to object storage")
                 s3_client.upload_file(out_file + ".zip", os.environ.get("BUCKET"), s3_key)
+
+                # also write duplicate report
+                if duplicates:
+                    LOG.info(
+                        "Duplicates present, writing duplicate record log to object storage as csv"
+                    )
+                    dups_csv_file = layer.out_layer + "_duplicates.csv"
+                    dups_csv_s3_key = (
+                        urlparse(prefix, allow_fragments=False).path.lstrip("/")
+                        + "/"
+                        + dups_csv_file
+                    )
+                    with open(dups_csv_file, "w") as f:
+                        writer = csv.DictWriter(f, fieldnames=duplicates[0].keys())
+                        writer.writeheader()
+                        writer.writerows(duplicates)
+                    s3_client.upload_file(dups_csv_file, os.environ.get("BUCKET"), dups_csv_s3_key)
 
             # dump change summary to local json for creating GH issues
             with open("issues.json", "w") as f:
