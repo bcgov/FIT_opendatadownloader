@@ -30,10 +30,9 @@ def test_fresh_download():
         [
             "process",
             "tests/test_config_a.json",
+            "_TESTING/test",
             "--layer",
             "parks",
-            "--prefix",
-            "s3://$BUCKET/Change_Detection/_TESTING/test",
             "-v",
         ],
     )
@@ -53,10 +52,9 @@ def test_download_changed():
         [
             "process",
             "tests/test_config_a.json",
+            "_TESTING/test",
             "--layer",
             "parks",
-            "--prefix",
-            "s3://$BUCKET/Change_Detection/_TESTING/test",
             "-v",
         ],
     )
@@ -65,10 +63,9 @@ def test_download_changed():
         [
             "process",
             "tests/test_config_b.json",
+            "_TESTING/test",
             "--layer",
             "parks",
-            "--prefix",
-            "s3://$BUCKET/Change_Detection/_TESTING/test",
             "-v",
         ],
     )

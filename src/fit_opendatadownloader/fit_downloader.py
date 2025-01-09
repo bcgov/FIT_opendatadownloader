@@ -7,7 +7,6 @@ import shutil
 import sys
 import zipfile
 from pathlib import Path
-from urllib.parse import urlparse
 
 import boto3
 import click
@@ -84,8 +83,7 @@ def list_configs(path, schedule, verbose, quiet):
     """List all configs available in specified folder as RD/MUNI"""
     configure_logging((verbose - quiet))
     # note that folders prefixed with _ are ignored
-    # files = glob.glob(os.path.join(path, "[!_]**/*.json"), recursive=True)
-    files = glob.glob(os.path.join(path, "**/*.json"), recursive=True)
+    files = glob.glob(os.path.join(path, "[!_]**/*.json"), recursive=True)
     for config_file in files:
         # parse schedule if specified
         if schedule:
@@ -101,15 +99,11 @@ def list_configs(path, schedule, verbose, quiet):
 
 @cli.command()
 @click.argument("config_file", type=click.Path(exists=True))
+@click.argument("admin_prefix")
 @click.option(
     "--layer",
     "-l",
     help="Layer to process in provided config.",
-)
-@click.option(
-    "--prefix",
-    "-p",
-    help="S3 prefix.",
 )
 @click.option(
     "--schedule",
@@ -127,8 +121,8 @@ def list_configs(path, schedule, verbose, quiet):
 @quiet_opt
 def process(
     config_file,
+    admin_prefix,
     layer,
-    prefix,
     schedule,
     validate,
     verbose,
@@ -183,10 +177,8 @@ def process(
             out_file = layer.out_layer + ".gdb"
             df.to_file(out_file, driver="OpenFileGDB", layer=layer.out_layer)
             zip_gdb(out_file, out_file + ".zip")
-            # derive output path
-            s3_key = (
-                urlparse(prefix, allow_fragments=False).path.lstrip("/") + "/" + out_file + ".zip"
-            )
+            # define output prefix
+            s3_prefix = "Change_Detection/" + admin_prefix
             # create s3 client
             s3_client = boto3.client("s3")
 
@@ -194,9 +186,12 @@ def process(
             write = True
 
             # run change detection if out file / s3 key already exists
-            if s3_key_exists(s3_client, s3_key):
+            target_file = "/".join([s3_prefix, out_file + ".zip"])
+            if s3_key_exists(s3_client, target_file):
                 # read from existing file on s3
-                df2 = geopandas.read_file(os.path.join("s3://", os.environ.get("BUCKET"), s3_key))
+                df2 = geopandas.read_file(
+                    os.path.join("s3://", os.environ.get("BUCKET"), target_file)
+                )
                 # run change detection
                 diff = fcd.gdf_diff(
                     df2,
@@ -208,19 +203,12 @@ def process(
                 )
                 # do not write new data if nothing has changed
                 if len(diff["UNCHANGED"]) == len(df2) == len(df):
-                    LOG.info(f"{s3_key}: data unchanged")
+                    LOG.info(f"{target_file}: data unchanged")
                     write = False
                 else:
                     # write changeset
                     changes_file = layer.out_layer + "_changes.gdb"
-                    # derive output path
-                    changes_s3_key = (
-                        urlparse(prefix, allow_fragments=False).path.lstrip("/")
-                        + "/"
-                        + changes_file
-                        + ".zip"
-                    )
-                    LOG.info(f"{s3_key}: changes found, creating changes .gdb")
+                    LOG.info(f"{out_file + ".zip"}: changes found, creating changes .gdb")
                     logging.getLogger("pyogrio._io").setLevel(
                         logging.WARNING
                     )  # squelch pyogrio INFO logs
@@ -242,9 +230,11 @@ def process(
                             )
                             mode = "a"
                     zip_gdb(changes_file, changes_file + ".zip")
-                    LOG.info(f"{changes_s3_key}: writing to object storage")
+                    LOG.info(f"{changes_file + ".zip"}: writing to object storage")
                     s3_client.upload_file(
-                        changes_file + ".zip", os.environ.get("BUCKET"), changes_s3_key
+                        changes_file + ".zip",
+                        os.environ.get("BUCKET"),
+                        "/".join([s3_prefix, changes_file + ".zip"]),
                     )
                     shutil.rmtree(changes_file)
                     os.unlink(changes_file + ".zip")
@@ -273,10 +263,9 @@ def process(
                     change_report["duplicate_ids"] = ",".join(duplicates)
 
                     # append change report to list of all changes
-                    rd_muni = prefix.split("Change_Detection/")[1]
                     change_reports.append(
                         {
-                            "title": "Data changes: " + os.path.join(rd_muni, layer.out_layer),
+                            "title": "Data changes: " + os.path.join(admin_prefix, layer.out_layer),
                             "body": "<br />".join(
                                 [k + ": " + str(change_report[k]) for k in change_report]
                             ),
@@ -291,20 +280,17 @@ def process(
                             writer.writerow([key, value])
 
                     # upload to s3
-                    changes_csv_s3_key = (
-                        urlparse(prefix, allow_fragments=False).path.lstrip("/")
-                        + "/"
-                        + changes_csv_file
-                    )
-                    LOG.info(f"{changes_csv_s3_key}: writing to object storage")
+                    LOG.info(f"{changes_csv_file}: writing to object storage")
                     s3_client.upload_file(
-                        changes_csv_file, os.environ.get("BUCKET"), changes_csv_s3_key
+                        changes_csv_file,
+                        os.environ.get("BUCKET"),
+                        "/".join([s3_prefix, changes_csv_file]),
                     )
                     os.unlink(changes_csv_file)
 
             if write:
-                LOG.info(f"{s3_key}: writing to object storage")
-                s3_client.upload_file(out_file + ".zip", os.environ.get("BUCKET"), s3_key)
+                LOG.info(f"{out_file + ".zip"}: writing to object storage")
+                s3_client.upload_file(out_file + ".zip", os.environ.get("BUCKET"), target_file)
 
                 # also write duplicate report
                 if duplicates:
@@ -312,16 +298,15 @@ def process(
                         "Duplicates present, writing duplicate record log to object storage as csv"
                     )
                     dups_csv_file = layer.out_layer + "_duplicates.csv"
-                    dups_csv_s3_key = (
-                        urlparse(prefix, allow_fragments=False).path.lstrip("/")
-                        + "/"
-                        + dups_csv_file
-                    )
                     with open(dups_csv_file, "w") as f:
                         writer = csv.DictWriter(f, fieldnames=duplicates[0].keys())
                         writer.writeheader()
                         writer.writerows(duplicates)
-                    s3_client.upload_file(dups_csv_file, os.environ.get("BUCKET"), dups_csv_s3_key)
+                    s3_client.upload_file(
+                        dups_csv_file,
+                        os.environ.get("BUCKET"),
+                        "/".join([s3_prefix, dups_csv_file]),
+                    )
 
             # dump change summary to local json for creating GH issues
             with open("issues.json", "w") as f:
