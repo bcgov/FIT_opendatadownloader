@@ -46,8 +46,10 @@ def configure_logging(verbosity):
         level=log_level,
         format="%(asctime)s:%(levelname)s:%(name)s: %(message)s",
     )
-    # squelch pyogrio INFO logs
+    # squelch pyogrio and boto3 INFO logs
     logging.getLogger("pyogrio._io").setLevel(logging.WARNING)
+    logging.getLogger("botocore.credentials").setLevel(logging.WARNING)
+    logging.getLogger("botocore.configprovider").setLevel(logging.WARNING)
 
 
 def zip_gdb(gdb_path, zip_path):
@@ -122,7 +124,6 @@ class Layer:
             self.s3 = None
 
         self.gdf = None
-        self.duplicates = []
         self.duplicate_report = {}
         self.change_report = {}
         self.tempdir = tempfile.mkdtemp()
@@ -277,18 +278,24 @@ class Layer:
             )
             pks = [self.load_id]
 
-            # if duplicates are present in the hash key:
-            #  - drop the duplicates
-            #  - note the duplicate data in a separate data structure
-            if len(df) != len(df[self.load_id].drop_duplicates()) and drop_geom_duplicates:
+            # if duplicates are present in the hash key, log/note the duplication
+            if len(df) != len(df[self.load_id].drop_duplicates()):
                 dup_fields = "/".join(["geometry"] + hash_fields)
-                LOG.info(f"Duplicate {dup_fields} found when hashing, dropping duplicate rows")
                 df["_duplicated_"] = df.duplicated(keep=False, subset=[self.load_id])
                 duplicates = (
                     df[df["_duplicated_"]][[self.load_id] + fields]
                     .sort_values(by=[self.load_id])
                     .to_dict("records")
                 )
+                LOG.info("DUPLICATES: \n" + json.dumps(duplicates, indent=2))
+                self.duplicate_report["n_duplicates"] = len(duplicates)
+                self.duplicate_report["duplicate_ids"] = ",".join(
+                    [k[self.load_id] for k in duplicates]
+                )
+
+            # if specified, drop duplicates
+            if duplicates and drop_geom_duplicates:
+                LOG.info(f"Duplicate {dup_fields} found when hashing, dropping duplicate rows")
                 df = df.drop_duplicates(subset=[self.load_id])
 
         # to ensure type consistency, round trip to gdb and back to geopandas
@@ -298,18 +305,9 @@ class Layer:
             layer=self.out_layer,
             mode="w",
         )
-        df = geopandas.read_file(
+        self.gdf = geopandas.read_file(
             os.path.join(self.tempdir, "_roundtrip_.gdb"), layer=self.out_layer
         )
-
-        self.gdf = df
-        if duplicates:
-            LOG.info("DUPLICATES: \n" + json.dumps(duplicates, indent=2))
-        # populate report duplicate keys
-        if duplicates:
-            self.duplicate_report["n_duplicates"] = len(duplicates)
-            self.duplicate_report["duplicate_ids"] = ",".join([k[self.load_id] for k in duplicates])
-            self.duplicates = duplicates
 
     def dump(self):
         # write uncompressed .gdb in /tmp
@@ -547,7 +545,7 @@ def process(
     for layer in layers:
         report = {}
         layer.download()
-        layer.clean()
+        layer.clean(drop_geom_duplicates=True)
         if not validate:
             layer.dump()
             report.update(layer.duplicate_report)
