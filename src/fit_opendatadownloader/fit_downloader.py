@@ -124,6 +124,7 @@ class Layer:
             self.s3 = None
 
         self.gdf = None
+        self.duplicates = []
         self.duplicate_report = {}
         self.change_report = {}
         self.tempdir = tempfile.mkdtemp()
@@ -288,6 +289,7 @@ class Layer:
                     .to_dict("records")
                 )
                 LOG.info("DUPLICATES: \n" + json.dumps(duplicates, indent=2))
+                self.duplicates = duplicates
                 self.duplicate_report["n_duplicates"] = len(duplicates)
                 self.duplicate_report["duplicate_ids"] = ",".join(
                     [k[self.load_id] for k in duplicates]
