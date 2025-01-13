@@ -53,4 +53,4 @@ jobs:
           python -m pip install .
       - name: Validate source
         run: |
-          fit_downloader process -Vv sources/${{ matrix.arg }}.json
+          fit_downloader process -Vv sources/${{ matrix.arg }}.json Change_Detection/${{ matrix.arg }}
