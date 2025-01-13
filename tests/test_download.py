@@ -179,7 +179,7 @@ def test_hash_pk():
     ]
     layer = parse_config(sources)[0]
     layer.download()
-    layer.clean()
+    layer.clean(precision=0.1)
     assert layer.gdf["fdl_load_id"].iloc[0] == "597b8d8bef757cb12fec15ce027fb2c6f84775d7"
 
 
@@ -236,7 +236,7 @@ def test_duplicate_geom():
     ]
     layer = parse_config(sources)[0]
     layer.download()
-    layer.clean()
+    layer.clean(precision=0.1, drop_geom_duplicates=True)
     assert len(layer.duplicates) == 2
     assert layer.duplicates[1]["description"] == "heliport_dup2"
 

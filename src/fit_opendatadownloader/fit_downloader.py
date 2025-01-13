@@ -1,11 +1,9 @@
-import csv
 import glob
 import json
 import logging
 import os
 import re
 import shutil
-import sys
 import tempfile
 import zipfile
 from pathlib import Path
@@ -44,7 +42,7 @@ SUPPORTED_SPATIAL_TYPES = [
 def configure_logging(verbosity):
     log_level = max(10, 30 - 10 * verbosity)
     logging.basicConfig(
-        stream=sys.stderr,
+        handlers=[logging.FileHandler("fit_downloader.log"), logging.StreamHandler()],
         level=log_level,
         format="%(asctime)s:%(levelname)s:%(name)s: %(message)s",
     )
@@ -115,6 +113,11 @@ class Layer:
         # are we working with files on s3?
         if self.out_file.startswith("s3://"):
             self.s3 = boto3.client("s3")
+            self.s3_key = urlparse(self.out_file, allow_fragments=False).path.lstrip("/")
+            self.s3_changes_key = self.s3_key.replace(
+                self.out_layer + ".gdb.zip", self.out_layer + "_changes.gdb.zip"
+            )
+            # self.s3_log_key =
         else:
             self.s3 = None
 
@@ -122,7 +125,7 @@ class Layer:
         self.duplicates = []
         self.duplicate_report = {}
         self.change_report = {}
-        self.tempdir = tempfile.gettempdir()
+        self.tempdir = tempfile.mkdtemp()
         if not self.hash_fields:
             self.hash_fields = []
 
@@ -233,9 +236,8 @@ class Layer:
 
         # assign cleaned column names to fields list
         fields = list(cleaned_column_map.values())
-
         hash_fields = [cleaned_column_map[k] for k in self.hash_fields]
-        print(hash_fields)
+
         # drop any columns not listed in config (minus geometry)
         df = df[fields + ["geometry"]]
 
@@ -301,14 +303,15 @@ class Layer:
         )
 
         self.gdf = df
-        LOG.info("DUPLICATES: \n" + json.dumps(duplicates, indent=2))
+        if duplicates:
+            LOG.info("DUPLICATES: \n" + json.dumps(duplicates, indent=2))
         # populate report duplicate keys
         if duplicates:
             self.duplicate_report["n_duplicates"] = len(duplicates)
-            self.duplicate_report["duplicate_ids"] = ",".join(duplicates)
+            self.duplicate_report["duplicate_ids"] = ",".join([k[self.load_id] for k in duplicates])
             self.duplicates = duplicates
 
-    def dump(self, write_issues=True):
+    def dump(self):
         # write uncompressed .gdb in /tmp
         self.gdf.to_file(
             os.path.join(self.tempdir, self.out_layer + ".gdb"),
@@ -323,8 +326,24 @@ class Layer:
 
         diff = {}
 
+        # if output file *does not* exist, write it without running change detection
+        if not self.out_file_exists:
+            LOG.info("No existing file found, writing to file")
+            if self.s3:
+                LOG.info(f"{self.s3_key} - writing to object storage")
+                self.s3.upload_file(
+                    os.path.join(self.tempdir, self.out_layer + ".gdb.zip"),
+                    os.environ.get("BUCKET"),
+                    self.s3_key,
+                )
+            else:
+                shutil.copyfile(
+                    os.path.join(self.tempdir, self.out_layer + ".gdb.zip"), self.out_file
+                )
+
         # run change detection if output file already exists
-        if self.out_file_exists:
+        else:
+            LOG.info("Running change detection")
             gdf_previous = geopandas.read_file(self.out_file)
             diff = fcd.gdf_diff(
                 gdf_previous,
@@ -335,78 +354,77 @@ class Layer:
                 return_type="gdf",
             )
 
-        # if output file *does not* exist, write it with no change detection
-        else:
-            if self.s3:
-                s3_key = urlparse(self.out_file, allow_fragments=False).path
-                self.s3.upload_file(
-                    os.path.join(self.tempdir, self.out_layer + ".gdb.zip"),
-                    os.environ.get("BUCKET"),
-                    s3_key,
-                )
-            else:
-                shutil.copyfile(
-                    os.path.join(self.tempdir, self.out_layer + ".gdb.zip"), self.out_file
-                )
+            # do not write new data if nothing has changed
+            if diff and len(diff["UNCHANGED"]) == len(gdf_previous) == len(self.gdf):
+                LOG.info("Data unchanged")
 
-        # do not write new data if nothing has changed
-        if diff and len(diff["UNCHANGED"]) == len(gdf_previous) == len(self.df):
-            LOG.info(f"{self.out_file}: data unchanged")
+            # if changes are present
+            elif diff and (
+                len(diff["UNCHANGED"]) != len(self.gdf)
+                or len(diff["UNCHANGED"]) != len(gdf_previous)
+            ):
+                # populate report change keys
+                self.change_report["record_count_original"] = len(gdf_previous)
+                self.change_report["record_count_new"] = len(self.gdf)
+                self.change_report["record_count_difference"] = len(self.gdf) - len(gdf_previous)
+                self.change_report["record_count_difference_pct"] = round(
+                    ((len(gdf_previous) - len(self.gdf)) / len(self.gdf)) * 100, 2
+                )
+                self.change_report["n_unchanged"] = len(diff["UNCHANGED"])
+                self.change_report["n_deletions"] = len(diff["DELETED"])
+                self.change_report["n_additions"] = len(diff["NEW"])
+                self.change_report["n_modified"] = (
+                    len(diff["MODIFIED_BOTH"])
+                    + len(diff["MODIFIED_ATTR"])
+                    + len(diff["MODIFIED_GEOM"])
+                )
+                self.change_report["n_modified_spatial_only"] = len(diff["MODIFIED_GEOM"])
+                self.change_report["n_modified_spatial_attributes"] = len(diff["MODIFIED_BOTH"])
+                self.change_report["n_modified_attributes_only"] = len(diff["MODIFIED_ATTR"])
 
-        # if data have changed, write changeset
-        else:
-            LOG.info(f"{self.out_file}: changes found, creating changes .gdb")
-            changes_file = self.out_layer + "_changes.gdb"
-            mode = "w"
-            for key in [
-                "NEW",
-                "DELETED",
-                "MODIFIED_BOTH",
-                "MODIFIED_ATTR",
-                "MODIFIED_GEOM",
-            ]:
-                if len(diff[key]) > 0:
-                    if "geometry" not in diff[key].columns:
-                        diff[key] = geopandas.GeoDataFrame(
-                            diff[key], geometry=geopandas.GeoSeries([None] * len(diff[key]))
+                LOG.info("CHANGES: \n" + json.dumps(self.change_report, indent=2))
+
+                # write changes gdb
+                changes_gdb = self.out_layer + "_changes.gdb"
+                # ensure tempfile does not already exist
+                mode = "w"
+                for key in [
+                    "NEW",
+                    "DELETED",
+                    "MODIFIED_BOTH",
+                    "MODIFIED_ATTR",
+                    "MODIFIED_GEOM",
+                ]:
+                    if len(diff[key]) > 0:
+                        # create empty geodataframe if geometry is not present
+                        if "geometry" not in diff[key].columns:
+                            diff[key] = geopandas.GeoDataFrame(
+                                diff[key], geometry=geopandas.GeoSeries([None] * len(diff[key]))
+                            )
+                        diff[key].to_file(
+                            os.path.join(self.tempdir, changes_gdb),
+                            driver="OpenFileGDB",
+                            layer=key,
+                            mode=mode,
                         )
-                    diff[key].to_file(
-                        os.path.join(self.tempdir, changes_file),
-                        driver="OpenFileGDB",
-                        layer=key,
-                        mode=mode,
+                        mode = "a"
+                mode = "w"
+                zip_gdb(
+                    os.path.join(self.tempdir, changes_gdb),
+                    os.path.join(self.tempdir, changes_gdb + ".zip"),
+                )
+                if self.s3:
+                    LOG.info(f"{self.s3_changes_key}: writing to object storage")
+                    self.s3.upload_file(
+                        os.path.join(self.tempdir, changes_gdb + ".zip"),
+                        os.environ.get("BUCKET"),
+                        self.s3_changes_key,
                     )
-                    mode = "a"
-            zip_gdb(os.path.join(self.tempdir, changes_file), changes_file + ".zip")
-            if self.s3:
-                s3_key = urlparse(self.out_file, allow_fragments=False).path.replace(
-                    self.out_layer + ".gdb.zip", changes_file + ".zip"
-                )
-                self.s3.upload_file(changes_file + ".zip", os.environ.get("BUCKET"), s3_key)
-            else:
-                shutil.copyfile(
-                    changes_file + ".zip",
-                    self.out_file.replace(self.out_layer + ".gdb.zip", changes_file + ".zip"),
-                )
-
-            # populate report change keys
-            self.change_report["record_count_original"] = len(gdf_previous)
-            self.change_report["record_count_new"] = len(self.gdf)
-            self.change_report["record_count_difference"] = len(self.gdf) - len(gdf_previous)
-            self.change_report["record_count_difference_pct"] = round(
-                ((len(gdf_previous) - len(self.gdf)) / len(self.df)) * 100, 2
-            )
-            self.change_report["n_unchanged"] = len(diff["UNCHANGED"])
-            self.change_report["n_deletions"] = len(diff["DELETED"])
-            self.change_report["n_additions"] = len(diff["NEW"])
-            self.change_report["n_modified"] = (
-                len(diff["MODIFIED_BOTH"]) + len(diff["MODIFIED_ATTR"]) + len(diff["MODIFIED_GEOM"])
-            )
-            self.change_report["n_modified_spatial_only"] = len(diff["MODIFIED_GEOM"])
-            self.change_report["n_modified_spatial_attributes"] = len(diff["MODIFIED_BOTH"])
-            self.change_report["n_modified_attributes_only"] = len(diff["MODIFIED_ATTR"])
-
-            LOG.info("CHANGES: \n" + json.dumps(self.change_report, indent=2))
+                else:
+                    shutil.copyfile(
+                        os.path.join(self.tempdir, changes_gdb + ".zip"),
+                        self.out_file.replace(self.out_layer + ".gdb.zip", changes_gdb + ".zip"),
+                    )
 
 
 def parse_config(config, out_path=".", load_id="fdl_load_id"):
@@ -535,30 +553,15 @@ def process(
             report.update(layer.duplicate_report)
             report.update(layer.change_report)
 
-            # dump duplicates/changes report to csv
-            log_csv = layer.out_layer + "_log.csv"
-            with open(log_csv, "w") as f:
-                writer = csv.writer(f)
-                writer.writerow(["key", "value"])
-                for key, value in report.items():
-                    writer.writerow([key, value])
-
-            # upload report to s3
-            LOG.info(f"{log_csv}: writing to object storage")
-            layer.s3.upload_file(
-                log_csv,
-                os.environ.get("BUCKET"),
-                "/".join([s3_prefix, log_csv]),
-            )
-            os.unlink(log_csv)
-
-            # note duplicates/changes as text for gh issue, issues are only created
-            # if changes are present, not for fresh uploads
+            # dump duplicates/changes report as text for creating a gh issue
+            # note that issues are only created if changes are present, not for fresh uploads
             if layer.change_report:
-                issues.append = {
-                    "title": "Data changes: " + os.path.join(admin_prefix, layer.out_layer),
-                    "body": "<br />".join([k + ": " + str(report[k]) for k in report]),
-                }
+                issues.append(
+                    {
+                        "title": "Data changes: " + os.path.join(admin_prefix, layer.out_layer),
+                        "body": "<br />".join([k + ": " + str(report[k]) for k in report]),
+                    }
+                )
 
     with open("issues.json", "w") as f:
         json.dump(issues, f, indent=2)
