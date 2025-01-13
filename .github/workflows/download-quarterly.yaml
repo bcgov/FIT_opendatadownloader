@@ -47,7 +47,7 @@ jobs:
           python -m pip install .
       - name: Process sources
         run: |
-          fit_downloader process -v --prefix s3://$BUCKET/Change_Detection/${{ matrix.arg }} -s Q sources/${{ matrix.arg }}.json
+          fit_downloader process sources/${{ matrix.arg }}.json Change_Detection/${{ matrix.arg }} -v -s Q
           aws s3 cp fit_downloader.log s3://$BUCKET/Change_Detection/${{ matrix.arg}}/fit_downloader.log
           echo "issues_file=issues.json" >> "$GITHUB_ENV"
       - name: Create GitHub Issues
