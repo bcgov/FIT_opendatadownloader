@@ -5,7 +5,7 @@ import geopandas
 import pytest
 from click.testing import CliRunner
 
-from fit_opendatadownloader.fit_downloader import cli, s3_key_exists
+from fit_opendatadownloader.fit_downloader import cli
 
 
 @pytest.fixture(autouse=True)
@@ -76,8 +76,6 @@ def test_download_changed():
         )
     )
     assert len(df) == 8
-    s3_client = boto3.client("s3")
-    assert s3_key_exists(s3_client, "Change_Detection/_TESTING/test/parks_changes.gdb.zip")
     df = geopandas.read_file(
         os.path.join(
             "s3://",
