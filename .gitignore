@@ -1,1 +1,3 @@
 *.gdb*
+*.log
+issues.json
