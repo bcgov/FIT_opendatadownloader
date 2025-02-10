@@ -7,8 +7,7 @@
     "fields": [
       "PARK",
       "STATUS",
-      "TENURE",
-      "Shape_Area"
+      "TENURE"
     ],
     "primary_key": [
       "PARK",
