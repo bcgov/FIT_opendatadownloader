@@ -6,12 +6,12 @@
     "protocol": "http",
     "fields": [
       "PARKNAME",
-      "PARKADDRESS",
+      "PARKADDRES",
       "CITYOWNED",
       "GLOBALID",
       "PARKID"
     ],
-    "primary_key": [
+    "hash_fields": [
       "PARKID"
     ],
     "schedule": "Q"
@@ -28,7 +28,7 @@
       "GID"
     ],
     "schedule": "Q",
-    "primary_key": [
+    "hash_fields": [
       "GID"
     ]
   }
