@@ -1,30 +1,30 @@
 [
   {
     "out_layer": "parks",
-    "source": "https://www.nanaimo.ca/open-data-catalogue/Download/Index?container=nanaimo&entitySetName=ParksGeoSpatial&downloadID=78",
+    "source": "/vsizip//vsicurl/https://www.nanaimo.ca/GISFiles/shp/Parks.zip",
     "source_layer": "PARKS",
     "protocol": "http",
     "fields": [
-      "parkName",
-      "parkAddress",
-      "cityOwned",
-      "GlobalID",
-      "parkID",
-      "SHAPE_Area"
+      "PARKNAME",
+      "PARKADDRESS",
+      "CITYOWNED",
+      "GLOBALID",
+      "PARKID"
     ],
     "primary_key": [
-      "parkID"
+      "PARKID"
     ],
     "schedule": "Q"
   },
   {
     "out_layer": "roads",
-    "source": "https://www.nanaimo.ca/open-data-catalogue/Download/Index?container=nanaimo&entitySetName=Roads&downloadID=81",
+    "source": "/vsizip//vsicurl/https://www.nanaimo.ca/GISFiles/shp/RoadNetwork.zip",
+    "source_layer": "ROAD_CENTERLINES",
     "protocol": "http",
     "fields": [
-      "StreetName",
-      "Class",
-      "Surface",
+      "STREETNAME",
+      "CLASS",
+      "SURFACE",
       "GID"
     ],
     "schedule": "Q",
