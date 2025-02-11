@@ -22,19 +22,14 @@
   },
   {
     "out_layer": "parks",
-    "source": "https://mydata-kamloops.opendata.arcgis.com/documents/ecd36ad4452b4fa8b29bd04f31e20f87",
-    "source_layer": "Parks",
+    "source": "/vsizip//vsicurl/https://maps.kamloops.ca/OpenData/zipfiles/ParksSHP.zip",
+    "source_layer": "Park",
     "protocol": "http",
     "fields": [
-      "Name",
-      "Size",
-      "Address",
-      "Class",
-      "SHAPE.STArea()"
-    ],
-    "primary_key": [
-      "Name",
-      "Size"
+      "NAME",
+      "ADDRESS",
+      "SITETYPE",
+      "CLASSIFICA"
     ],
     "schedule": "Q"
   }
