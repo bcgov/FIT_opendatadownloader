@@ -12,7 +12,7 @@
       "FROM_LOCATION",
       "TO_LOCATION"
     ],
-    "primary_key": [
+    "hash_fields": [
       "GISLINK"
     ],
     "schedule": "Q"
