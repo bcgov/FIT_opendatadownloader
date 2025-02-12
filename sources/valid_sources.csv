@@ -1,0 +1,189 @@
+filename,admin_area_group_name,admin_area_name
+ACRD/acrd,Regional District of Alberni-Clayoquot,Regional District of Alberni-Clayoquot
+ACRD/port_alberni,Regional District of Alberni-Clayoquot,City of Port Alberni
+ACRD/tofino,Regional District of Alberni-Clayoquot,Corporation of the Village of Tofino
+ACRD/ucluelet,Regional District of Alberni-Clayoquot,District of Ucluelet
+BNRD/bnrd,Regional District of Bulkley-Nechako,Regional District of Bulkley-Nechako
+BNRD/burns_lake,Regional District of Bulkley-Nechako,The Corporation of the Village of Burns Lake
+BNRD/fort_st_james,Regional District of Bulkley-Nechako,District of Fort St James
+BNRD/fraser_lake,Regional District of Bulkley-Nechako,Village of Fraser Lake
+BNRD/granisle,Regional District of Bulkley-Nechako,Village of Granisle
+BNRD/houston,Regional District of Bulkley-Nechako,District of Houston
+BNRD/smithers,Regional District of Bulkley-Nechako,Town of Smithers
+BNRD/telkwa,Regional District of Bulkley-Nechako,The Corporation of the Village of Telkwa
+BNRD/vanderhoof,Regional District of Bulkley-Nechako,District of Vanderhoof
+CAPRD/caprd,Capital Regional District,Capital Regional District
+CAPRD/central_saanich,Capital Regional District,The Corporation of the District of Central Saanich
+CAPRD/colwood,Capital Regional District,City of Colwood
+CAPRD/esquimalt,Capital Regional District,The Corporation of the Township of Esquimalt
+CAPRD/highlands,Capital Regional District,District of Highlands
+CAPRD/langford,Capital Regional District,City of Langford
+CAPRD/metchosin,Capital Regional District,District of Metchosin
+CAPRD/north_saanich,Capital Regional District,District of North Saanich
+CAPRD/oak_bay,Capital Regional District,The Corporation of the District of Oak Bay
+CAPRD/saanich,Capital Regional District,The Corporation of the District of Saanich
+CAPRD/sidney,Capital Regional District,Town of Sidney
+CAPRD/sooke,Capital Regional District,District of Sooke
+CAPRD/victoria,Capital Regional District,The Corporation of the City of Victoria
+CAPRD/view_royal,Capital Regional District,Town of View Royal
+CCRD/ccrd,Central Coast Regional District,Central Coast Regional District
+CKRD/castlegar,Regional District of Central Kootenay,City of Castlegar
+CKRD/ckrd,Regional District of Central Kootenay,Regional District of Central Kootenay
+CKRD/creston,Regional District of Central Kootenay,Town of Creston
+CKRD/kaslo,Regional District of Central Kootenay,Village of Kaslo
+CKRD/nakusp,Regional District of Central Kootenay,Village of Nakusp
+CKRD/nelson,Regional District of Central Kootenay,The Corporation of the City of Nelson
+CKRD/new_denver,Regional District of Central Kootenay,Village of New Denver
+CKRD/salmo,Regional District of Central Kootenay,The Corporation of the Village of Salmo
+CKRD/silverton,Regional District of Central Kootenay,The Corporation of the Village of Silverton
+CKRD/slocan,Regional District of Central Kootenay,Village of Slocan
+CMXRD/cmxrd,Comox Valley Regional District,Comox Valley Regional District
+CMXRD/comox,Comox Valley Regional District,Town of Comox
+CMXRD/courtenay,Comox Valley Regional District,The Corporation of the City of Courtenay
+CMXRD/cumberland,Comox Valley Regional District,Village of Cumberland
+CORD/cord,Regional District of Central Okanagan,Regional District of Central Okanagan
+CORD/kelowna,Regional District of Central Okanagan,City of Kelowna
+CORD/lake_country,Regional District of Central Okanagan,District of Lake Country
+CORD/peachland,Regional District of Central Okanagan,The Corporation of the District of Peachland
+CORD/west_kelowna,Regional District of Central Okanagan,City of West Kelowna
+CRD/100_mile_house,Cariboo Regional District,District of 100 Mile House
+CRD/crd,Cariboo Regional District,Cariboo Regional District
+CRD/quesnel,Cariboo Regional District,City of Quesnel
+CRD/wells,Cariboo Regional District,District of Wells
+CRD/williams_lake,Cariboo Regional District,City of Williams Lake
+CSHRD/cshrd,Columbia Shuswap Regional District,Columbia Shuswap Regional District
+CSHRD/golden,Columbia Shuswap Regional District,Town of Golden
+CSHRD/revelstoke,Columbia Shuswap Regional District,City of Revelstoke
+CSHRD/salmon_arm,Columbia Shuswap Regional District,City of Salmon Arm
+CSHRD/sicamous,Columbia Shuswap Regional District,The Corporation of the District of Sicamous
+CVRD/cvrd,Cowichan Valley Regional District,Cowichan Valley Regional District
+CVRD/duncan,Cowichan Valley Regional District,The Corporation of the City of Duncan
+CVRD/ladysmith,Cowichan Valley Regional District,Town of Ladysmith
+CVRD/lake_cowichan,Cowichan Valley Regional District,Town of Lake Cowichan
+CVRD/north_cowichan,Cowichan Valley Regional District,The Corporation of the District of North Cowichan
+EKRD/canal_flats,Regional District of East Kootenay,Village of Canal Flats
+EKRD/cranbrook,Regional District of East Kootenay,The Corporation of the City of Cranbrook
+EKRD/ekrd,Regional District of East Kootenay,Regional District of East Kootenay
+EKRD/elkford,Regional District of East Kootenay,District of Elkford
+EKRD/fernie,Regional District of East Kootenay,The Corporation of the City of Fernie
+EKRD/invermere,Regional District of East Kootenay,District of Invermere
+EKRD/kimberley,Regional District of East Kootenay,City of Kimberley
+EKRD/radium_hot_springs,Regional District of East Kootenay,Village of Radium Hot Springs
+EKRD/sparwood,Regional District of East Kootenay,District of Sparwood
+FFGRD/ffgrd,Regional District of Fraser-Fort George,Regional District of Fraser-Fort George
+FFGRD/mackenzie,Regional District of Fraser-Fort George,District of Mackenzie
+FFGRD/mcbride,Regional District of Fraser-Fort George,The Corporation of the Village of McBride
+FFGRD/prince_george,Regional District of Fraser-Fort George,City of Prince George
+FFGRD/valemont,Regional District of Fraser-Fort George,Village of Valemount
+FVRD/abbotsford,Fraser Valley Regional District,City of Abbotsford
+FVRD/chilliwack,Fraser Valley Regional District,City of Chilliwack
+FVRD/fvrd,Fraser Valley Regional District,Fraser Valley Regional District
+FVRD/harrison_hot_springs,Fraser Valley Regional District,Village of Harrison Hot Springs
+FVRD/hope,Fraser Valley Regional District,District of Hope
+FVRD/kent,Fraser Valley Regional District,District of Kent
+FVRD/mission,Fraser Valley Regional District,City of Mission
+KBRD/fruitvale,Regional District of Kootenay Boundary,The Corporation of the Village of Fruitvale
+KBRD/grand_forks,Regional District of Kootenay Boundary,City of Grand Forks
+KBRD/greenwood,Regional District of Kootenay Boundary,City of Greenwood
+KBRD/kbrd,Regional District of Kootenay Boundary,Regional District of Kootenay Boundary
+KBRD/midway,Regional District of Kootenay Boundary,Village of Midway
+KBRD/montrose,Regional District of Kootenay Boundary,Village of Montrose
+KBRD/rossland,Regional District of Kootenay Boundary,City of Rossland
+KBRD/trail,Regional District of Kootenay Boundary,City of Trail
+KBRD/warfield,Regional District of Kootenay Boundary,Village of Warfield
+KSRD/hazelton,Regional District of Kitimat-Stikine,The Corporation of the Village of Hazelton
+KSRD/kitimat,Regional District of Kitimat-Stikine,District of Kitimat
+KSRD/ksrd,Regional District of Kitimat-Stikine,Regional District of Kitimat-Stikine
+KSRD/new_hazelton,Regional District of Kitimat-Stikine,District of New Hazelton
+KSRD/stewart,Regional District of Kitimat-Stikine,District of Stewart
+KSRD/terrace,Regional District of Kitimat-Stikine,City of Terrace
+MVRD/anmore,Metro Vancouver Regional District,Village of Anmore
+MVRD/belcarra,Metro Vancouver Regional District,Village of Belcarra
+MVRD/bowen_island,Metro Vancouver Regional District,Bowen Island Municipality
+MVRD/burnaby,Metro Vancouver Regional District,City of Burnaby
+MVRD/coquitlam,Metro Vancouver Regional District,City of Coquitlam
+MVRD/delta,Metro Vancouver Regional District,City of Delta
+MVRD/langley_city,Metro Vancouver Regional District,City of Langley
+MVRD/langley_township,Metro Vancouver Regional District,The Corporation of the Township of Langley
+MVRD/lions_bay,Metro Vancouver Regional District,Village of Lions Bay
+MVRD/maple_ridge,Metro Vancouver Regional District,City of Maple Ridge
+MVRD/mvrd,Metro Vancouver Regional District,Metro Vancouver Regional District
+MVRD/new_westminster,Metro Vancouver Regional District,City of New Westminster
+MVRD/north_vancouver_city,Metro Vancouver Regional District,City of North Vancouver
+MVRD/north_vancouver_district,Metro Vancouver Regional District,The Corporation of the District of North Vancouver
+MVRD/pitt_meadows,Metro Vancouver Regional District,City of Pitt Meadows
+MVRD/port_coquitlam,Metro Vancouver Regional District,City of Port Coquitlam
+MVRD/port_moody,Metro Vancouver Regional District,City of Port Moody
+MVRD/richmond,Metro Vancouver Regional District,City of Richmond
+MVRD/surrey,Metro Vancouver Regional District,City of Surrey
+MVRD/vancouver,Metro Vancouver Regional District,City of Vancouver
+MVRD/west_vancouver,Metro Vancouver Regional District,District Municipality of West Vancouver
+MVRD/white_rock,Metro Vancouver Regional District,City of White Rock
+MWRD/alert_bay,Regional District of Mount Waddington,The Corporation of the Village of Alert Bay
+MWRD/mwrd,Regional District of Mount Waddington,Regional District of Mount Waddington
+MWRD/port_alice,Regional District of Mount Waddington,Village of Port Alice
+MWRD/port_hardy,Regional District of Mount Waddington,District of Port Hardy
+MWRD/port_mcneill,Regional District of Mount Waddington,Town of Port McNeill
+NCRD/daajing_giids,North Coast Regional District,Village of Daajing Giids
+NCRD/masset,North Coast Regional District,Village of Masset
+NCRD/ncrd,North Coast Regional District,North Coast Regional District
+NCRD/port_clements,North Coast Regional District,Village of Port Clements
+NCRD/port_edward,North Coast Regional District,District of Port Edward
+NCRD/prince_rupert,North Coast Regional District,City of Prince Rupert
+NORD/armstrong,Regional District of North Okanagan,City of Armstrong
+NORD/coldstream,Regional District of North Okanagan,The Corporation of the District of Coldstream
+NORD/enderby,Regional District of North Okanagan,The Corporation of the City of Enderby
+NORD/lumby,Regional District of North Okanagan,The Corporation of the Village of Lumby
+NORD/nord,Regional District of North Okanagan,Regional District of North Okanagan
+NORD/spallumcheen,Regional District of North Okanagan,The Corporation of the Township of Spallumcheen
+NORD/vernon,Regional District of North Okanagan,The Corporation of the City of Vernon
+NRD/lantzville,Regional District of Nanaimo,District of Lantzville
+NRD/nanaimo,Regional District of Nanaimo,City of Nanaimo
+NRD/nrd,Regional District of Nanaimo,Regional District of Nanaimo
+NRD/parksville,Regional District of Nanaimo,City of Parksville
+NRD/qualicum_beach,Regional District of Nanaimo,Town of Qualicum Beach
+NRRM/nrrm,Northern Rockies Regional Municipality,Northern Rockies Regional Municipality
+OSRD/keremeos,Regional District of Okanagan-Similkameen,Village of Keremeos
+OSRD/oliver,Regional District of Okanagan-Similkameen,Town of Oliver
+OSRD/osoyoos,Regional District of Okanagan-Similkameen,Town of Osoyoos
+OSRD/osrd,Regional District of Okanagan-Similkameen,Regional District of Okanagan-Similkameen
+OSRD/penticton,Regional District of Okanagan-Similkameen,The Corporation of the City of Penticton
+OSRD/princeton,Regional District of Okanagan-Similkameen,Town of Princeton
+OSRD/summerland,Regional District of Okanagan-Similkameen,The Corporation of the District of Summerland
+PRRD/chetwynd,Peace River Regional District,District of Chetwynd
+PRRD/dawson_creek,Peace River Regional District,The Corporation of the City of Dawson Creek
+PRRD/fort_st_john,Peace River Regional District,City of Fort St John
+PRRD/hudsons_hope,Peace River Regional District,District of Hudsons Hope
+PRRD/pouce_coupe,Peace River Regional District,The Corporation of the Village of Pouce Coupe
+PRRD/prrd,Peace River Regional District,Peace River Regional DistrictPeace River Regional District
+PRRD/taylor,Peace River Regional District,District of Taylor
+PRRD/tumbler_ridge,Peace River Regional District,District of Tumbler Ridge
+qRD/powell_river,qathet Regional District,City of Powell River
+qRD/qrd,qathet Regional District,qathet Regional District
+SCRD/gibsons,Sunshine Coast Regional District,Town of Gibsons
+SCRD/scrd,Sunshine Coast Regional District,Sunshine Coast Regional District
+SCRD/sechelt,Sunshine Coast Regional District,District of Sechelt
+SLRD/lillooet,Squamish-Lillooet Regional District,District of Lillooet
+SLRD/pemberton,Squamish-Lillooet Regional District,Village of Pemberton
+SLRD/slrd,Squamish-Lillooet Regional District,Squamish-Lillooet Regional District
+SLRD/squamish,Squamish-Lillooet Regional District,District of Squamish
+SLRD/whistler,Squamish-Lillooet Regional District,Resort Municipality of Whistler
+SRD/srd,Stikine Region (Unincorporated),Stikine Region (Unincorporated)
+STRD/campbell_river,Strathcona Regional District,City of Campbell River
+STRD/gold_river,Strathcona Regional District,Village of Gold River
+STRD/sayward,Strathcona Regional District,Village of Sayward
+STRD/strd,Strathcona Regional District,Strathcona Regional District
+STRD/tahsis,Strathcona Regional District,Village of Tahsis
+STRD/zeballos,Strathcona Regional District,The Corporation of the Village of Zeballos
+TNRD/ashcroft,Thompson-Nicola Regional District,The Corporation of the Village of Ashcroft
+TNRD/barriere,Thompson-Nicola Regional District,District of Barriere
+TNRD/cache_creek,Thompson-Nicola Regional District,Village of Cache Creek
+TNRD/chase,Thompson-Nicola Regional District,Village of Chase
+TNRD/clearwater,Thompson-Nicola Regional District,District of Clearwater
+TNRD/clinton,Thompson-Nicola Regional District,Village of Clinton
+TNRD/kamloops,Thompson-Nicola Regional District,City of Kamloops
+TNRD/logan_lake,Thompson-Nicola Regional District,District of Logan Lake
+TNRD/lytton,Thompson-Nicola Regional District,Village of Lytton
+TNRD/merritt,Thompson-Nicola Regional District,City of Merritt
+TNRD/sun_peaks,Thompson-Nicola Regional District,Sun Peaks Mountain Resort Municipality
+TNRD/tnrd,Thompson-Nicola Regional District,Thompson-Nicola Regional District
