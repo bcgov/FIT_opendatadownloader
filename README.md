@@ -113,10 +113,10 @@ Steps to determine this will vary by data source, but the general sequence is:
 
 To test/debug sources of protocol `http`, use `ogr2ogr` in debug and read-only mode, with the curl debug set to verbose:
 
-		ogrinfo -ro \
-	    /vsizip//vsicurl/https://opendata.chilliwack.com/shp/Parks_SHP.zip \
-	    --debug ON \
-	    --config CPL_CURL_VERBOSE=TRUE
+	ogrinfo -ro \
+    /vsizip//vsicurl/https://opendata.chilliwack.com/shp/Parks_SHP.zip \
+    --debug ON \
+    --config CPL_CURL_VERBOSE=TRUE
 
 The resulting output is very verbose. If a given source cannot be read by `ogrinfo`, look through the output for things like:
 
