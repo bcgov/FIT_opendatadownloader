@@ -105,7 +105,7 @@ Steps to determine this will vary by data source, but the general sequence is:
 	+ direct links to data files (eg https://www.nanaimo.ca/GISFiles/shp/Parks.zip)
 	+ ArcGIS REST API endpoints (eg https://maps.victoria.ca/server/rest/services/OpenData/OpenData_Transportation/MapServer/25)
 	+ links that auto re-direct to data files (eg https://governmentofbc.maps.arcgis.com/sharing/rest/content/items/4bba119c2e9042d683cc9378fb1e836e/data)
-- generally, any format that is [readable by OGR](https://gdal.org/en/stable/drivers/vector/index.html) is acceptable, but in practice the order of preference would be:
+- generally, any format that is [readable by OGR](https://gdal.org/en/stable/drivers/vector/index.html) is acceptable, but (with all else being equal) the order of preference would be:
 	+ GDB/GPKG
 	+ geojson
 	+ shp
