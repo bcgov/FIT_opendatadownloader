@@ -126,7 +126,7 @@ The resulting output is very verbose. If a given source cannot be read by `ogrin
 If problems continue, try downloading the file with a web browser and reading the result.
 In some cases, the name of the zipfile downloaded does not correspond with the .gdb within, or zipfiles may be nested.
 For example, Langley (City) packages an arbitrary .gdb into a file called `transport.gdb.zip`, that can be handled like this:
-`"source": "/vsizip/{/vsicurl/https://governmentofbc.maps.arcgis.com/sharing/rest/content/items/4bba119c2e9042d683cc9378fb1e836e/data}/CoL_TransportationNetwork September 25 2024.gdb"` - see the virtual file systems documentation link below. 
+`"source": "/vsizip/{/vsicurl/https://governmentofbc.maps.arcgis.com/sharing/rest/content/items/4bba119c2e9042d683cc9378fb1e836e/data}/CoL_TransportationNetwork September 25 2024.gdb"` - see the /vsizip/ link below for how to handle zipfile complications. 
 
 When debugging connection to a quirky server/file combination, see these ogr2ogr/gdal references:
 
