@@ -47,14 +47,20 @@ Examples:
 
 1. Validate a configuration file for a given source:
 	
-		fit_downloader process -vV example_config.json
+		$ fit_downloader process -vV example_config.json
 
 2. Process data defined in `sources/CAPRD/victoria.json` configuration file, saving to `s3://$BUCKET/CAPRD/victoria`:
 
-		fit_downloader process -v \
-		  --prefix s3://$BUCKET/Change_Detection/CAPRD/victoria \
-		  sources/CAPRD/victoria.json 
+		$ fit_downloader process -v \
+		   --prefix s3://$BUCKET/Change_Detection/CAPRD/victoria \
+		   sources/CAPRD/victoria.json 
 
+Output data will look something like this:
+
+	  $ aws s3 ls s3://$BUCKET/Change_Detection/CAPRD/victoria --human --recursive
+	  2025-02-11 14:41:16    4.2 KiB Change_Detection/CAPRD/victoria/fit_downloader.log
+	  2025-01-13 14:48:38  148.6 KiB Change_Detection/CAPRD/victoria/parks.gdb.zip
+	  2025-01-13 14:48:41  236.7 KiB Change_Detection/CAPRD/victoria/roads.gdb.zip
 
 ## Configuration
 
