@@ -363,6 +363,19 @@ class Layer:
                 len(diff["UNCHANGED"]) != len(self.gdf)
                 or len(diff["UNCHANGED"]) != len(gdf_previous)
             ):
+                LOG.info("Changes found, writing latest data to file")
+                if self.s3:
+                    LOG.info(f"{self.s3_key} - writing to object storage")
+                    self.s3.upload_file(
+                        os.path.join(self.tempdir, self.out_layer + ".gdb.zip"),
+                        os.environ.get("BUCKET"),
+                        self.s3_key,
+                    )
+                else:
+                    shutil.copyfile(
+                        os.path.join(self.tempdir, self.out_layer + ".gdb.zip"), self.out_file
+                    )
+
                 # populate report change keys
                 self.change_report["record_count_original"] = len(gdf_previous)
                 self.change_report["record_count_new"] = len(self.gdf)
