@@ -381,7 +381,7 @@ class Layer:
                 self.change_report["record_count_new"] = len(self.gdf)
                 self.change_report["record_count_difference"] = len(self.gdf) - len(gdf_previous)
                 self.change_report["record_count_difference_pct"] = round(
-                    ((len(gdf_previous) - len(self.gdf)) / len(self.gdf)) * 100, 2
+                    (len(self.gdf) - (len(gdf_previous)) / len(gdf_previous)) * 100, 2
                 )
                 self.change_report["n_unchanged"] = len(diff["UNCHANGED"])
                 self.change_report["n_deletions"] = len(diff["DELETED"])
