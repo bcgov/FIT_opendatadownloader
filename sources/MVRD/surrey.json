@@ -1,17 +1,19 @@
 [
-    {
-        "out_layer": "parks",
-        "source": "https://cosmos.surrey.ca/geo_ref/Images/OpenDataArchives/parks_GDB.zip",
-        "source_layer": "parks",
-        "protocol": "http",
-        "fields": [
-            "FACILITYID",
-            "DESCRIPTION",
-            "LOCATION",
-            "PARK_NAME",
-            "STATUS"
-        ],
-        "primary_key": ["FACILITYID"],
-        "schedule": "Q"
-    }
+  {
+    "out_layer": "parks",
+    "source": "/vsizip//vsicurl/https://cosmos.surrey.ca/geo_ref/Images/OpenDataArchives/parks_JSON.zip",
+    "source_layer": "parks",
+    "protocol": "http",
+    "fields": [
+      "FACILITYID",
+      "DESCRIPTION",
+      "LOCATION",
+      "PARK_NAME",
+      "STATUS"
+    ],
+    "primary_key": [
+      "FACILITYID"
+    ],
+    "schedule": "Q"
+  }
 ]
